@@ -34,7 +34,7 @@ export const Login = () => {
     const result = await login(form.email, form.password);
     setSubmitting(false);
     if (result.success) {
-      toast.success(`Welcome back, ${result.data.name.split(' ')[0]}! 👋`);
+      toast.success(`Welcome back, ${result.data.name.split(' ')[0]}!`);
       navigate('/dashboard', { replace: true });
     } else {
       toast.error(result.message);
@@ -45,33 +45,25 @@ export const Login = () => {
 
   return (
     <div className="min-h-screen flex relative overflow-hidden">
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-violet-900 to-slate-900" />
-      <div className="absolute inset-0 opacity-30"
-        style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, #6366f1 0%, transparent 50%), radial-gradient(circle at 80% 20%, #8b5cf6 0%, transparent 50%), radial-gradient(circle at 60% 80%, #ec4899 0%, transparent 40%)' }}
-      />
-      {/* Grid overlay */}
-      <div className="absolute inset-0 opacity-10"
-        style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)', backgroundSize: '60px 60px' }}
-      />
+      {/* Background */}
+      <div className="absolute inset-0 bg-[#e8f0fe]" />
 
-      {/* Left panel — branding (hidden on mobile) */}
-      <div className="hidden lg:flex flex-1 flex-col items-center justify-center p-12 text-white relative">
-        <div className="max-w-md text-center">
-          <div className="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-xl ring-2 ring-white/20 flex items-center justify-center mx-auto mb-8 shadow-2xl">
+      {/* Left panel — branding */}
+      <div className="hidden lg:flex flex-1 flex-col items-center justify-center p-12 relative">
+        <div className="absolute inset-0 bg-[#1a1a2e]" />
+        <div className="relative z-10 max-w-md text-center">
+          <div className="w-20 h-20 rounded-3xl bg-[#4f6ef7] flex items-center justify-center mx-auto mb-8 shadow-xl shadow-[#4f6ef7]/30">
             <GraduationCap className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-bold mb-4 leading-tight">
-            EduTrack<br />
-            <span className="text-violet-300">Student Management</span>
+          <h1 className="text-4xl font-bold text-white mb-4 leading-tight">
+            Student<span className="text-[#4f6ef7]">buddy</span>
           </h1>
-          <p className="text-white/60 text-lg leading-relaxed">
-            A complete, offline-first student management system. Track attendance, manage students, and generate insightful reports.
+          <p className="text-white/50 text-lg leading-relaxed">
+            A complete student management system. Track attendance, manage students, and generate insightful reports.
           </p>
-          {/* Feature pills */}
           <div className="flex flex-wrap justify-center gap-2 mt-8">
-            {['✅ Attendance Tracking', '📊 Reports & Analytics', '🎓 Student CRUD', '🌑 Dark Mode'].map((f) => (
-              <span key={f} className="px-3 py-1.5 text-xs font-medium rounded-full bg-white/10 backdrop-blur-sm ring-1 ring-white/20 text-white/80">
+            {['Attendance Tracking', 'Reports & Analytics', 'Student CRUD', 'Dark Mode'].map((f) => (
+              <span key={f} className="px-3 py-1.5 text-xs font-medium rounded-full bg-white/10 text-white/60 border border-white/10">
                 {f}
               </span>
             ))}
@@ -79,29 +71,28 @@ export const Login = () => {
         </div>
       </div>
 
-      {/* Right panel — login form */}
+      {/* Right panel — form */}
       <div className="flex-1 flex items-center justify-center p-6 relative">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="flex items-center justify-center gap-3 mb-8 lg:hidden">
-            <div className="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-xl flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-[#1a1a2e] flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-white">EduTrack</h1>
+            <h1 className="text-2xl font-bold text-[#1a1a2e]">Student<span className="text-[#4f6ef7]">buddy</span></h1>
           </div>
 
-          <div className="card-glass p-8 shadow-2xl">
+          <div className="card p-8 shadow-xl">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Sign In</h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Welcome back! Please sign in to continue.</p>
+              <h2 className="text-2xl font-bold text-[#1e293b]">Sign In</h2>
+              <p className="text-[#94a3b8] text-sm mt-1">Welcome back! Please sign in to continue.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Email */}
               <div className="input-group">
                 <label className="label">Email Address</label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8]" />
                   <input
                     type="email"
                     value={form.email}
@@ -113,22 +104,21 @@ export const Login = () => {
                 {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
               </div>
 
-              {/* Password */}
               <div className="input-group">
                 <label className="label">Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8]" />
                   <input
                     type={showPw ? 'text' : 'password'}
                     value={form.password}
                     onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                     className={`input pl-10 pr-10 ${errors.password ? 'ring-2 ring-red-500 border-red-500' : ''}`}
-                    placeholder="••••••••"
+                    placeholder="Enter password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPw((v) => !v)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#475569]"
                   >
                     {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -150,8 +140,8 @@ export const Login = () => {
             </form>
 
             {/* Demo credentials */}
-            <div className="mt-6 p-4 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/50">
-              <p className="text-xs font-bold text-indigo-700 dark:text-indigo-300 mb-3">🔑 Demo Credentials</p>
+            <div className="mt-6 p-4 rounded-xl bg-[#eef2ff] border border-[#c7d2fe]">
+              <p className="text-xs font-bold text-[#4f6ef7] mb-3">Demo Credentials</p>
               <div className="space-y-2">
                 {[
                   { label: 'Admin', email: 'admin@sms.local', password: 'admin123' },
@@ -161,11 +151,11 @@ export const Login = () => {
                     key={email}
                     type="button"
                     onClick={() => fillDemo(email, password)}
-                    className="w-full text-left px-3 py-2 rounded-lg bg-white dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors text-xs border border-slate-200 dark:border-gray-700"
+                    className="w-full text-left px-3 py-2 rounded-lg bg-white hover:bg-[#f8fafc] transition-colors text-xs border border-[#e2e8f0]"
                   >
-                    <span className="font-semibold text-indigo-700 dark:text-indigo-300">{label}:</span>{' '}
-                    <span className="text-slate-600 dark:text-slate-400">{email}</span>{' '}
-                    <span className="text-slate-400 dark:text-slate-500">/ {password}</span>
+                    <span className="font-semibold text-[#4f6ef7]">{label}:</span>{' '}
+                    <span className="text-[#475569]">{email}</span>{' '}
+                    <span className="text-[#94a3b8]">/ {password}</span>
                   </button>
                 ))}
               </div>

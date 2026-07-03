@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern To-Do List</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Poppins, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: .4s;
+        }
+
+        .container {
+            width: 420px;
+            background: rgba(255, 255, 255, .15);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .3);
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-box input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .input-box button {
+            padding: 12px 18px;
+            border: none;
+            background: #00c853;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .search {
+            margin: 15px 0;
+        }
+
+        .search input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+        }
+
+        ul {
+            list-style: none;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        li {
+            background: white;
+            color: #333;
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fade .3s;
+        }
+
+        .done {
+            text-decoration: line-through;
+            opacity: .5;
+        }
+
+        .icons i {
+            margin-left: 12px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .fa-check {
+            color: green;
+        }
+
+        .fa-trash {
+            color: red;
+        }
+
+        .fa-pen {
+            color: orange;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .footer button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #222;
+            color: white;
+        }
+
+        .dark {
+            background: #111;
+        }
+
+        .dark .container {
+            background: #1f1f1f;
+        }
+
+        .dark li {
+            background: #333;
+            color: white;
+        }
+
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1><i class="fa-solid fa-list-check"></i> To-Do List</h1>
+
+        <div class="input-box">
+            <input type="text" id="taskInput" placeholder="Enter a task...">
+            <button onclick="addTask()">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+        </div>
+
+        <div class="search">
+            <input type="text" id="search" placeholder="Search..." onkeyup="searchTask()">
+        </div>
+
+        <ul id="taskList"></ul>
+
+        <div class="footer">
+            <span id="count">0 Tasks</span>
+
+            <div>
+                <button onclick="clearAll()">Clear All</button>
+                <button onclick="toggleDark()">🌙</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+        showTasks();
+
+        function save() {
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        function addTask() {
+
+            let input = document.getElementById("taskInput");
+
+            if (input.value.trim() == "") return;
+
+            tasks.push({
+                text: input.value,
+                done: false
+            });
+
+            input.value = "";
+
+            save();
+
+            showTasks();
+
+        }
+
+        function showTasks() {
+
+            let list = document.getElementById("taskList");
+
+            list.innerHTML = "";
+
+            tasks.forEach((task, index) => {
+
+                list.innerHTML += `
+
+<li>
+
+<span class="${task.done ? 'done' : ''}">
+${task.text}
+</span>
+
+<div class="icons">
+
+<i class="fa-solid fa-check"
+onclick="completeTask(${index})"></i>
+
+<i class="fa-solid fa-pen"
+onclick="editTask(${index})"></i>
+
+<i class="fa-solid fa-trash"
+onclick="deleteTask(${index})"></i>
+
+</div>
+
+</li>
+
+`;
+
+            });
+
+            document.getElementById("count").innerHTML = tasks.length + " Tasks";
+
+        }
+
+        function completeTask(index) {
+
+            tasks[index].done = !tasks[index].done;
+
+            save();
+
+            showTasks();
+
+        }
+
+        function deleteTask(index) {
+
+            tasks.splice(index, 1);
+
+            save();
+
+            showTasks();
+
+        }
+
+        function editTask(index) {
+
+            let value = prompt("Edit Task", tasks[index].text);
+
+            if (value != null && value.trim() != "") {
+
+                tasks[index].text = value;
+
+                save();
+
+                showTasks();
+
+            }
+
+        }
+
+        function searchTask() {
+
+            let search = document.getElementById("search").value.toLowerCase();
+
+            let li = document.querySelectorAll("li");
+
+            li.forEach(item => {
+
+                item.style.display = item.innerText.toLowerCase().includes(search)
+                    ? "flex" : "none";
+
+            });
+
+        }
+
+        function clearAll() {
+
+            if (confirm("Delete all tasks?")) {
+
+                tasks = [];
+
+                save();
+
+                showTasks();
+
+            }
+
+        }
+
+        function toggleDark() {
+
+            document.body.classList.toggle("dark");
+
+        }
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Registration Form</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: linear-gradient(-45deg, #4facfe, #00f2fe, #667eea, #764ba2);
+            background-size: 400% 400%;
+            animation: bgMove 12s ease infinite;
+        }
+
+        @keyframes bgMove {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Floating Circles */
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .15);
+            animation: float 12s linear infinite;
+        }
+
+        .circle:nth-child(1) {
+            width: 90px;
+            height: 90px;
+            left: 10%;
+            top: 15%;
+        }
+
+        .circle:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            right: 12%;
+            bottom: 15%;
+            animation-duration: 18s;
+        }
+
+        .circle:nth-child(3) {
+            width: 70px;
+            height: 70px;
+            left: 75%;
+            top: 25%;
+            animation-duration: 10s;
+        }
+
+        .circle:nth-child(4) {
+            width: 150px;
+            height: 150px;
+            left: 20%;
+            bottom: 10%;
+            animation-duration: 20s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-40px) rotate(180deg);
+            }
+
+            100% {
+                transform: translateY(0) rotate(360deg);
+            }
+        }
+
+        /* Card */
+
+        .container {
+            width: 420px;
+            padding: 35px;
+            background: rgba(255, 255, 255, .15);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, .3);
+            color: white;
+            animation: popup .8s ease;
+            z-index: 10;
+        }
+
+        @keyframes popup {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 30px;
+        }
+
+        .input-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-box i {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: white;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 14px 45px;
+            border: none;
+            outline: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .2);
+            color: white;
+            font-size: 16px;
+            transition: .3s;
+        }
+
+        .input-box input::placeholder {
+            color: #eee;
+        }
+
+        .input-box input:focus {
+            background: rgba(255, 255, 255, .3);
+            box-shadow: 0 0 12px cyan;
+        }
+
+        /* Password Toggle */
+
+        .eye {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            cursor: pointer;
+        }
+
+        /* Password Strength */
+
+        .strength {
+            height: 8px;
+            background: #ccc;
+            border-radius: 20px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .strength div {
+            height: 100%;
+            width: 0%;
+            background: red;
+            transition: .4s;
+        }
+
+        /* Error */
+
+        .error {
+            font-size: 13px;
+            color: #ffb3b3;
+            margin-top: 5px;
+        }
+
+        /* Button */
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #00d084;
+            color: white;
+            transition: .3s;
+        }
+
+        button:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px #00ff99;
+        }
+
+        /* Success Popup */
+
+        .popup {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #00c853;
+            color: white;
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-size: 18px;
+            transition: .5s;
+            z-index: 999;
+        }
+
+        .popup.show {
+            top: 25px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #f1f1f1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+
+    <div class="popup" id="popup">
+        🎉 Registration Successful!
+    </div>
+
+    <div class="container">
+
+        <h2>Create Account</h2>
+
+        <div class="input-box">
+            <i class="fa fa-user"></i>
+            <input type="text" id="uname" placeholder="Enter Your Name">
+            <div class="error" id="span1"></div>
+        </div>
+
+        <div class="input-box">
+            <i class="fa fa-envelope"></i>
+            <input type="email" id="umail" placeholder="Enter Your Email">
+            <div class="error" id="span2"></div>
+        </div>
+
+        <div class="input-box">
+            <i class="fa fa-lock"></i>
+            <input type="password" id="uPass" placeholder="Enter Password">
+            <i class="fa fa-eye eye" id="toggle"></i>
+
+            <div class="strength">
+                <div id="bar"></div>
+            </div>
+
+            <div class="error" id="span3"></div>
+
+        </div>
+
+        <button onclick="validate()">
+            Register
+        </button>
+
+        <div class="footer">
+            Made with ❤️ using HTML, CSS & JavaScript
+        </div>
+
+    </div>
+
+    <!-- JavaScript will be added in Part 2 -->
+
+</body>
+
+</html>

@@ -8,19 +8,21 @@ import {
   BarChart3,
   ChevronRight,
   GraduationCap,
+  BookOpen,
 } from 'lucide-react';
 
 const navItems = [
-  { label: 'Dashboard',  href: '/dashboard',  icon: LayoutDashboard, roles: ['admin', 'teacher'] },
-  { label: 'Students',   href: '/students',   icon: Users,            roles: ['admin', 'teacher'] },
-  { label: 'Attendance', href: '/attendance', icon: CalendarCheck,    roles: ['admin', 'teacher'] },
-  { label: 'Reports',    href: '/reports',    icon: BarChart3,        roles: ['admin', 'teacher'] },
+  { label: 'Dashboard',  href: '/dashboard',  icon: LayoutDashboard },
+  { label: 'Students',   href: '/students',   icon: Users },
+  { label: 'Attendance', href: '/attendance', icon: CalendarCheck },
+  { label: 'Academic',   href: '/academic',   icon: BookOpen },
+  { label: 'Reports',    href: '/reports',    icon: BarChart3 },
 ];
 
 export const Sidebar = ({ isOpen, closeSidebar }) => {
   const { user } = useAuth();
   const location = useLocation();
-  const filtered = navItems.filter((i) => i.roles.includes(user?.role));
+  const filtered = navItems;
 
   return (
     <>
@@ -35,17 +37,28 @@ export const Sidebar = ({ isOpen, closeSidebar }) => {
       <aside
         className={`
           fixed left-0 top-16 h-[calc(100vh-4rem)] w-64
-          bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl
-          border-r border-slate-200/60 dark:border-gray-800/60
+          bg-[#1a1a2e] dark:bg-[#0b0f1a]
           transform transition-transform duration-300 z-40
           lg:static lg:translate-x-0 overflow-y-auto
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
-        <nav className="p-4 space-y-1">
-          {/* Section Label */}
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 px-3 mb-3">
-            Navigation
+        {/* User profile area */}
+        <div className="p-5 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4f6ef7] to-[#a78bfa] flex items-center justify-center text-white font-bold text-sm">
+              {user?.name?.split(' ')[0]?.[0] || 'U'}
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">{user?.name || 'User'}</p>
+              <p className="text-[11px] text-white/40 capitalize">{user?.role || 'Student'}</p>
+            </div>
+          </div>
+        </div>
+
+        <nav className="p-4 space-y-1.5">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 px-3 mb-3">
+            Menu
           </p>
 
           {filtered.map(({ label, href, icon: Icon }) => {
@@ -66,14 +79,14 @@ export const Sidebar = ({ isOpen, closeSidebar }) => {
         </nav>
 
         {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-100 dark:border-gray-800">
-          <div className="flex items-center gap-2.5 px-2 py-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center">
-              <GraduationCap className="w-3.5 h-3.5 text-white" />
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
+          <div className="flex items-center gap-3 px-2 py-2">
+            <div className="w-8 h-8 rounded-xl bg-[#4f6ef7] flex items-center justify-center">
+              <GraduationCap className="w-4 h-4 text-white" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">EduTrack v2.0</p>
-              <p className="text-[10px] text-slate-400">Frontend Edition</p>
+              <p className="text-xs font-bold text-white">StudentBuddy</p>
+              <p className="text-[10px] text-white/30">Management System</p>
             </div>
           </div>
         </div>

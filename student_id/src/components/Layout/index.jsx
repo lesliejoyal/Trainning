@@ -6,12 +6,12 @@ export const Layout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-[#e8f0fe] dark:bg-[#0f172a]">
       <Navbar toggleSidebar={() => setSidebarOpen((o) => !o)} />
       <div className="flex h-[calc(100vh-4rem)]">
         <Sidebar isOpen={sidebarOpen} closeSidebar={() => setSidebarOpen(false)} />
         <main className="flex-1 overflow-auto">
-          <div className="p-4 md:p-8 max-w-screen-2xl mx-auto">
+          <div className="p-4 md:p-6 max-w-screen-2xl mx-auto">
             {children}
           </div>
         </main>

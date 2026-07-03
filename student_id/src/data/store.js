@@ -5,6 +5,7 @@ import { format, subDays } from 'date-fns';
 // ── Keys ──────────────────────────────────────────────
 const STUDENTS_KEY = 'sms_students';
 const ATTENDANCE_KEY = 'sms_attendance';
+const ACADEMIC_KEY = 'sms_academic';
 
 // ── Initialise localStorage once ─────────────────────
 const initStudents = () => {
@@ -33,10 +34,19 @@ const initAttendance = () => {
   return seed;
 };
 
+const initAcademic = () => {
+  const saved = localStorage.getItem(ACADEMIC_KEY);
+  if (saved) return JSON.parse(saved);
+  const empty = {};
+  localStorage.setItem(ACADEMIC_KEY, JSON.stringify(empty));
+  return empty;
+};
+
 // ── Hook ──────────────────────────────────────────────
 export const useStudentStore = () => {
   const [students, setStudents] = useState(() => initStudents());
   const [attendance, setAttendance] = useState(() => initAttendance());
+  const [academic, setAcademic] = useState(() => initAcademic());
 
   // ── Student CRUD ──────────────────────────────────
   const addStudent = useCallback((data) => {
@@ -82,6 +92,20 @@ export const useStudentStore = () => {
     setAttendance((prev) => {
       const next = { ...prev, [date]: data };
       localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  // ── Academic Marks ─────────────────────────────────
+  const getAcademicMarks = useCallback(
+    (studentId) => academic[studentId] || { assignment: '', quiz: '', internal: '' },
+    [academic]
+  );
+
+  const saveAcademicMarks = useCallback((studentId, data) => {
+    setAcademic((prev) => {
+      const next = { ...prev, [studentId]: data };
+      localStorage.setItem(ACADEMIC_KEY, JSON.stringify(next));
       return next;
     });
   }, []);
@@ -136,11 +160,14 @@ export const useStudentStore = () => {
   return {
     students,
     attendance,
+    academic,
     addStudent,
     updateStudent,
     deleteStudent,
     getAttendance,
     saveAttendance,
+    getAcademicMarks,
+    saveAcademicMarks,
     getDashboardStats,
     getStudentReport,
   };

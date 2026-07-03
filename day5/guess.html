@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Number Guessing Game</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(-45deg,#0f2027,#203a43,#2c5364,#4facfe,#00f2fe,#43e97b,#38f9d7);
+    background-size:400% 400%;
+    animation:bgAnimation 12s ease infinite;
+}
+
+@keyframes bgAnimation{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+}
+
+.container{
+    width:430px;
+    padding:30px;
+    text-align:center;
+    background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(15px);
+    border-radius:20px;
+    color:white;
+    box-shadow:0 15px 35px rgba(0,0,0,.4);
+}
+
+h1{
+    margin-bottom:15px;
+    font-size:34px;
+}
+
+p{
+    margin:10px;
+    font-size:18px;
+}
+
+input{
+    width:90%;
+    padding:15px;
+    margin:20px 0;
+    font-size:20px;
+    border:none;
+    outline:none;
+    border-radius:10px;
+    text-align:center;
+}
+
+.buttons{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+button{
+    padding:12px 18px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    color:white;
+    font-size:17px;
+    transition:.3s;
+}
+
+.guess{
+    background:#007bff;
+}
+
+.hint{
+    background:#ff9800;
+}
+
+.restart{
+    background:#28a745;
+}
+
+button:hover{
+    transform:scale(1.08);
+    box-shadow:0 0 20px white;
+}
+
+.info{
+    display:flex;
+    justify-content:space-around;
+    margin-top:20px;
+    flex-wrap:wrap;
+}
+
+#message{
+    margin-top:20px;
+    font-size:22px;
+    font-weight:bold;
+    min-height:40px;
+}
+
+.win{
+    animation:celebrate .5s infinite alternate;
+}
+
+@keyframes celebrate{
+    from{
+        transform:scale(1);
+    }
+    to{
+        transform:scale(1.05);
+    }
+}
+
+.progress{
+    width:100%;
+    height:15px;
+    background:#ddd;
+    border-radius:20px;
+    margin-top:20px;
+}
+
+.progress-bar{
+    height:100%;
+    width:100%;
+    background:#00ff66;
+    border-radius:20px;
+    transition:.5s;
+}
+
+.footer{
+    margin-top:20px;
+    font-size:14px;
+    color:#f0f0f0;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🎯 Guess The Number</h1>
+
+<p>Guess a number between <b>1 and 100</b></p>
+
+<input type="number" id="guess" placeholder="Enter your guess">
+
+<div class="buttons">
+<button class="guess" onclick="checkGuess()">Guess</button>
+<button class="hint" onclick="showHint()">Hint</button>
+<button class="restart" onclick="restartGame()">New Game</button>
+</div>
+
+<div id="message"></div>
+
+<div class="progress">
+<div class="progress-bar" id="bar"></div>
+</div>
+
+<div class="info">
+<p>❤️ Lives: <span id="lives">10</span></p>
+<p>🎯 Attempts: <span id="attempts">0</span></p>
+<p>🏆 Best: <span id="best">--</span></p>
+</div>
+
+<div class="footer">
+Developed with ❤️ using HTML, CSS & JavaScript
+</div>
+
+</div>
+
+<script>
+
+let randomNumber=Math.floor(Math.random()*100)+1;
+
+let attempts=0;
+let lives=10;
+
+let bestScore=localStorage.getItem("bestScore");
+
+if(bestScore==null){
+    bestScore="--";
+}
+
+document.getElementById("best").innerHTML=bestScore;
+
+function checkGuess(){
+
+let guess=Number(document.getElementById("guess").value);
+
+if(guess<1 || guess>100){
+    message.innerHTML="❌ Enter a number from 1 to 100";
+    return;
+}
+
+attempts++;
+lives--;
+
+document.getElementById("attempts").innerHTML=attempts;
+document.getElementById("lives").innerHTML=lives;
+
+document.getElementById("bar").style.width=(lives*10)+"%";
+
+if(guess===randomNumber){
+
+message.innerHTML="🎉 Congratulations! You guessed it correctly.";
+
+document.querySelector(".container").classList.add("win");
+
+if(bestScore=="--" || attempts<bestScore){
+localStorage.setItem("bestScore",attempts);
+document.getElementById("best").innerHTML=attempts;
+}
+
+}
+
+else if(lives<=0){
+
+message.innerHTML="💀 Game Over! The number was <b>"+randomNumber+"</b>";
+
+document.getElementById("bar").style.width="0%";
+
+}
+
+else if(guess<randomNumber){
+
+message.innerHTML="📉 Too Low! Try a higher number.";
+
+}
+
+else{
+
+message.innerHTML="📈 Too High! Try a lower number.";
+
+}
+
+}
+
+function showHint(){
+
+let hint="";
+
+if(randomNumber%2==0)
+hint+="💡 The number is EVEN.<br>";
+else
+hint+="💡 The number is ODD.<br>";
+
+if(randomNumber>50)
+hint+="⬆️ It is greater than 50.";
+else
+hint+="⬇️ It is less than or equal to 50.";
+
+message.innerHTML=hint;
+
+}
+
+function restartGame(){
+
+randomNumber=Math.floor(Math.random()*100)+1;
+
+attempts=0;
+lives=10;
+
+document.getElementById("guess").value="";
+document.getElementById("attempts").innerHTML="0";
+document.getElementById("lives").innerHTML="10";
+document.getElementById("bar").style.width="100%";
+message.innerHTML="";
+
+document.querySelector(".container").classList.remove("win");
+
+}
+
+document.getElementById("guess").addEventListener("keypress",function(event){
+
+if(event.key==="Enter"){
+checkGuess();
+}
+
+});
+
+</script>
+
+</body>
+</html>

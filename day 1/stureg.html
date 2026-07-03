@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Registration Form</title>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlcI6YzJKjAVx5dOwAfpudVFMtuYyQNjrg_QBvO794Mg&s=10');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-box{
+            width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid black;
+            border-radius: 10px;
+            background-color: rgba(255,255,255,0.9);
+        }
+
+        h2{
+            text-align: center;
+            color: navy;
+        }
+
+        input, select{
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        .gender{
+            width: auto;
+        }
+
+        .btn{
+            width: 100%;
+            padding: 10px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover{
+            background-color: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="form-box">
+
+    <h2>Student Registration Form</h2>
+
+    <form>
+
+        <label>Name:</label>
+        <input type="text" placeholder="Enter your name">
+
+        <label>Roll Number:</label>
+        <input type="text" placeholder="Enter roll number">
+
+        <label>Date of Birth:</label>
+        <input type="date">
+
+        <label>Email:</label>
+        <input type="email" placeholder="Enter email">
+
+        <label>Password:</label>
+        <input type="password" placeholder="Enter password">
+
+        <label>Gender:</label><br>
+        <input type="radio" name="gender" class="gender"> Male
+        <input type="radio" name="gender" class="gender"> Female
+        <br><br>
+
+        <label>Course:</label>
+        <select>
+            <option>Java</option>
+            <option>Python</option>
+            <option>C Programming</option>
+            <option>Web Development</option>
+        </select>
+
+        <input type="submit" value="Register" class="btn">
+
+    </form>
+
+</div>
+
+</body>
+</html>

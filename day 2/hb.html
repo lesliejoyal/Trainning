@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Computer Science Department</title>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: linear-gradient(to right, #dbeafe, #bfdbfe);
+        }
+
+        header{
+            background-color: navy;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container{
+            width: 85%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .image-box{
+            text-align: center;
+        }
+
+        .image-box img{
+            width: 600px;
+            max-width: 100%;
+            border-radius: 15px;
+            box-shadow: 0px 0px 10px gray;
+        }
+
+        .card{
+            background-color: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 8px gray;
+        }
+
+        h2{
+            color: navy;
+        }
+
+        table{
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th{
+            background-color: #2563eb;
+            color: white;
+        }
+
+        th, td{
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        tr:hover{
+            background-color: #e0f2fe;
+        }
+
+        .subjects{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .subject-box{
+            background-color: #2563eb;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+        }
+
+        .btn{
+            background-color: green;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn:hover{
+            background-color: darkgreen;
+        }
+
+        footer{
+            text-align: center;
+            background-color: navy;
+            color: white;
+            padding: 15px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>💻 Department of Computer Science</h1>
+    <p>Learning • Innovation • Technology</p>
+</header>
+
+<div class="container">
+
+    <div class="image-box">
+        <img src="https://imgs.search.brave.com/XIIo3lJsISOHvj36yvNDtFQYCsYmHrUvphR1pGP69ss/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly93d3cuY29sbGVnZWJyb3dzZXIuY29tL3VwbG9hZHMvaW1hZ2VzLzYyMDEzZDk0Zjk3NTg0MDU3NDYwOTNhMjdjMmIyNmU3MTY3NzgzNDgwNS5qcGc"
+             alt="Computer Science Department">
+    </div>
+
+    <div class="card">
+        <h2>About Department</h2>
+        <p>
+            The Department of Computer Science provides quality education in
+            programming, software engineering, data science, artificial intelligence,
+            and emerging technologies. We encourage innovation, creativity, and research.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Faculty Members</h2>
+
+        <table>
+            <tr>
+                <th>Faculty ID</th>
+                <th>Name</th>
+                <th>Designation</th>
+            </tr>
+            <tr>
+                <td>CS101</td>
+                <td>Dr. Rajesh Kumar</td>
+                <td>Professor</td>
+            </tr>
+            <tr>
+                <td>CS102</td>
+                <td>Mrs. Priya Sharma</td>
+                <td>Associate Professor</td>
+            </tr>
+            <tr>
+                <td>CS103</td>
+                <td>Mr. Arun Kumar</td>
+                <td>Assistant Professor</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Subjects Offered</h2>
+
+        <div class="subjects">
+            <div class="subject-box">Programming in C</div>
+            <div class="subject-box">Data Structures</div>
+            <div class="subject-box">DBMS</div>
+            <div class="subject-box">Computer Networks</div>
+            <div class="subject-box">Web Technologies</div>
+            <div class="subject-box">Artificial Intelligence</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>College Website</h2>
+        <a href="https://www.cam.ac.uk/" target="_blank">
+            Visit College Website
+        </a>
+    </div>
+
+    <center>
+        <button class="btn">Submit Response</button>
+    </center>
+
+</div>
+
+<footer>
+    © 2026 Department of Computer Science
+</footer>
+
+</body>
+</html>

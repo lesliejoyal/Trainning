@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TechLearn - Learn Web Development</title>
+
+<link rel="icon" href="logo.png">
+
+<style>
+
+/* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+    scroll-behavior:smooth;
+}
+
+body{
+    background:#f8fafc;
+    color:#334155;
+}
+
+/* NAVBAR */
+
+.navbar{
+    position:sticky;
+    top:0;
+    z-index:1000;
+
+    background:rgba(15,23,42,0.95);
+    backdrop-filter:blur(10px);
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:15px 60px;
+}
+
+.logo img{
+    width:65px;
+    border-radius:12px;
+}
+
+.logo h2{
+    color:white;
+}
+
+.menu a{
+    color:white;
+    text-decoration:none;
+    margin-left:25px;
+    font-weight:500;
+    transition:.3s;
+}
+
+.menu a:hover{
+    color:#38bdf8;
+}
+
+/* HERO SECTION */
+
+.hero{
+    min-height:90vh;
+
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+
+    padding:60px;
+
+    background:
+    linear-gradient(
+    135deg,
+    #dbeafe,
+    #93c5fd,
+    #60a5fa
+    );
+}
+
+.hero-text h1{
+    font-size:60px;
+    color:#1e3a8a;
+    margin-bottom:20px;
+}
+
+.hero-text p{
+    font-size:20px;
+    line-height:1.8;
+    margin-bottom:30px;
+}
+
+.hero img{
+    width:320px;
+
+    animation:float 4s ease-in-out infinite;
+}
+
+@keyframes float{
+    0%,100%{
+        transform:translateY(0);
+    }
+    50%{
+        transform:translateY(-15px);
+    }
+}
+
+/* BUTTONS */
+
+.btn{
+    border:none;
+    cursor:pointer;
+
+    padding:14px 28px;
+
+    border-radius:50px;
+
+    background:
+    linear-gradient(
+    135deg,
+    #2563eb,
+    #3b82f6
+    );
+
+    color:white;
+    font-size:16px;
+    font-weight:600;
+
+    transition:.3s;
+}
+
+.btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 25px rgba(37,99,235,.3);
+}
+
+/* SECTION TITLE */
+
+.section-title{
+    text-align:center;
+    font-size:36px;
+    color:#1e3a8a;
+    margin-bottom:40px;
+}
+
+/* CARDS */
+
+.card,
+.step,
+.benefit-card,
+.review{
+
+    background:rgba(255,255,255,0.85);
+
+    backdrop-filter:blur(10px);
+
+    border-radius:20px;
+
+    padding:25px;
+
+    box-shadow:
+    0 10px 30px rgba(0,0,0,0.08);
+
+    transition:.3s;
+}
+
+.card:hover,
+.step:hover,
+.benefit-card:hover,
+.review:hover{
+
+    transform:translateY(-10px);
+
+    box-shadow:
+    0 20px 40px rgba(0,0,0,0.15);
+}
+
+/* COURSE GRID */
+
+.course-container{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:25px;
+}
+
+.card h3{
+    color:#2563eb;
+    margin-bottom:10px;
+}
+
+/* ROADMAP */
+
+.roadmap,
+.courses,
+.benefits,
+.projects,
+.resources,
+.contact{
+    padding:80px 60px;
+}
+
+.roadmap-box,
+.stats-box{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.step{
+    width:240px;
+}
+
+/* BENEFITS */
+
+.benefit-container{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:25px;
+}
+
+/* STATS */
+
+.stats{
+    background:
+    linear-gradient(
+    135deg,
+    #1d4ed8,
+    #2563eb
+    );
+
+    color:white;
+
+    padding:70px 30px;
+}
+
+.stats-box{
+    justify-content:space-around;
+}
+
+.stats h2{
+    font-size:50px;
+}
+
+/* TESTIMONIALS */
+
+.testimonials{
+    background:#eff6ff;
+    padding:80px 60px;
+}
+
+.review-box{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:20px;
+}
+
+/* CERTIFICATE */
+
+.certificate{
+    padding:80px;
+    text-align:center;
+
+    background:
+    linear-gradient(
+    135deg,
+    #dbeafe,
+    #bfdbfe
+    );
+}
+
+/* OFFER */
+
+.offer{
+    background:
+    linear-gradient(
+    135deg,
+    #1e40af,
+    #2563eb
+    );
+
+    color:white;
+    text-align:center;
+    padding:80px;
+}
+
+.offer h2{
+    font-size:40px;
+}
+
+/* RESOURCES */
+
+.resources ul{
+    list-style:none;
+    font-size:18px;
+    line-height:2.5;
+}
+
+/* CONTACT */
+
+.contact{
+    text-align:center;
+}
+
+.contact input,
+.contact textarea{
+
+    width:60%;
+
+    padding:15px;
+
+    border:1px solid #cbd5e1;
+
+    border-radius:10px;
+
+    margin:10px;
+}
+
+/* FOOTER */
+
+footer{
+    background:#0f172a;
+    color:white;
+    text-align:center;
+    padding:30px;
+}
+
+footer a{
+    color:#60a5fa;
+    text-decoration:none;
+    margin:10px;
+}
+
+footer a:hover{
+    color:white;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:768px){
+
+.navbar{
+    flex-direction:column;
+    padding:20px;
+}
+
+.menu{
+    margin-top:15px;
+}
+
+.hero{
+    flex-direction:column;
+    text-align:center;
+    padding:40px 20px;
+}
+
+.hero-text h1{
+    font-size:40px;
+}
+
+.hero img{
+    width:220px;
+    margin-top:30px;
+}
+
+.contact input,
+.contact textarea{
+    width:90%;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+
+<div class="logo">
+<img src="logo.png" alt="Logo">
+<h2>TechLearn</h2>
+</div>
+
+<div class="menu">
+<a href="#">Home</a>
+<a href="#">Courses</a>
+<a href="#">Projects</a>
+<a href="#">Reviews</a>
+<a href="#">Contact</a>
+</div>
+
+</div>
+
+<!-- HERO -->
+
+<section class="hero">
+
+<div class="hero-text">
+
+<h1>Learn Web Development</h1>
+
+<p>
+Master HTML, CSS and JavaScript with hands-on projects,
+industry-level training and professional certification.
+</p>
+
+<button class="btn">Get Started</button>
+<button class="btn">Explore Courses</button>
+
+</div>
+
+<img src="logo.png" alt="TechLearn">
+
+</section>
+
+<!-- ROADMAP -->
+
+<section class="roadmap">
+
+<h2 class="section-title">Learning Roadmap</h2>
+
+<div class="roadmap-box">
+
+<div class="step">
+<h3>HTML</h3>
+<p>Build webpage structures.</p>
+</div>
+
+<div class="step">
+<h3>CSS</h3>
+<p>Create responsive designs.</p>
+</div>
+
+<div class="step">
+<h3>JavaScript</h3>
+<p>Add interactivity.</p>
+</div>
+
+<div class="step">
+<h3>Projects</h3>
+<p>Build real-world websites.</p>
+</div>
+
+</div>
+
+</section>
+
+<!-- COURSES -->
+
+<section class="courses">
+
+<h2 class="section-title">Popular Courses</h2>
+
+<div class="course-container">
+
+<div class="card">
+<h3>HTML Mastery</h3>
+<p>Beginner to Advanced HTML.</p>
+<button class="btn">Enroll Now</button>
+</div>
+
+<div class="card">
+<h3>CSS Bootcamp</h3>
+<p>Modern UI and Responsive Design.</p>
+<button class="btn">Enroll Now</button>
+</div>
+
+<div class="card">
+<h3>JavaScript Pro</h3>
+<p>Build Dynamic Web Applications.</p>
+<button class="btn">Enroll Now</button>
+</div>
+
+</div>
+
+</section>
+
+<!-- STATS -->
+
+<section class="stats">
+
+<div class="stats-box">
+
+<div>
+<h2>10K+</h2>
+<p>Students</p>
+</div>
+
+<div>
+<h2>150+</h2>
+<p>Courses</p>
+</div>
+
+<div>
+<h2>250+</h2>
+<p>Projects</p>
+</div>
+
+<div>
+<h2>98%</h2>
+<p>Success Rate</p>
+</div>
+
+</div>
+
+</section>
+
+<!-- BENEFITS -->
+
+<section class="benefits">
+
+<h2 class="section-title">Why Choose TechLearn?</h2>
+
+<div class="benefit-container">
+
+<div class="benefit-card">
+🎯
+<h3>Practical Learning</h3>
+</div>
+
+<div class="benefit-card">
+👨‍🏫
+<h3>Expert Mentors</h3>
+</div>
+
+<div class="benefit-card">
+📜
+<h3>Certificates</h3>
+</div>
+
+<div class="benefit-card">
+💼
+<h3>Career Support</h3>
+</div>
+
+</div>
+
+</section>
+
+<!-- TESTIMONIALS -->
+
+<section class="testimonials">
+
+<h2 class="section-title">Student Reviews</h2>
+
+<div class="review-box">
+
+<div class="review">
+⭐⭐⭐⭐⭐
+<p>"Amazing platform for beginners."</p>
+</div>
+
+<div class="review">
+⭐⭐⭐⭐⭐
+<p>"Projects improved my coding skills."</p>
+</div>
+
+</div>
+
+</section>
+
+<!-- PROJECTS -->
+
+<section class="projects">
+
+<h2 class="section-title">Projects You'll Build</h2>
+
+<div class="course-container">
+
+<div class="card">
+<h3>Portfolio Website</h3>
+</div>
+
+<div class="card">
+<h3>E-Commerce Website</h3>
+</div>
+
+<div class="card">
+<h3>Student Management System</h3>
+</div>
+
+</div>
+
+</section>
+
+<!-- RESOURCES -->
+
+<section class="resources">
+
+<h2 class="section-title">Free Resources</h2>
+
+<ul>
+<li>📘 HTML Notes</li>
+<li>📙 CSS Cheat Sheet</li>
+<li>📗 JavaScript Handbook</li>
+<li>🎥 Video Tutorials</li>
+<li>💻 Coding Exercises</li>
+</ul>
+
+<button class="btn">Download Resources</button>
+
+</section>
+
+<!-- CERTIFICATE -->
+
+<section class="certificate">
+
+<h2>Get Certified</h2>
+
+<p>
+Earn an industry-recognized certificate after completing your course.
+</p>
+
+<br>
+
+<button class="btn">View Certificates</button>
+
+</section>
+
+<!-- OFFER -->
+
+<section class="offer">
+
+<h2>🔥 New Student Offer</h2>
+
+<p>Register today and get 30% OFF on all beginner courses.</p>
+
+<br>
+
+<button class="btn">Claim Offer</button>
+
+</section>
+
+<!-- CONTACT -->
+
+<section class="contact">
+
+<h2 class="section-title">Contact Us</h2>
+
+<input type="text" placeholder="Your Name"><br>
+
+<input type="email" placeholder="Your Email"><br>
+
+<textarea rows="5" placeholder="Your Message"></textarea><br>
+
+<button class="btn">Send Message</button>
+
+</section>
+
+<footer>
+
+<h3>TechLearn</h3>
+
+<br>
+
+<a href="#">Facebook</a>
+<a href="#">Instagram</a>
+<a href="#">LinkedIn</a>
+<a href="#">YouTube</a>
+
+<br><br>
+
+<p>© 2026 TechLearn. All Rights Reserved.</p>
+
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Login Page</title>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #e0f2fe, #bae6fd);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box{
+            width: 350px;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 10px;
+        }
+
+        h2{
+            text-align: center;
+            color: navy;
+            margin-bottom: 5px;
+        }
+
+        p{
+            text-align: center;
+        }
+
+        input{
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        .btn{
+            width: 100%;
+            padding: 10px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .btn:hover{
+            background-color: #1d4ed8;
+        }
+
+        a{
+            text-decoration: none;
+            color: blue;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-box">
+
+        <h2>🎓 Student Login</h2>
+        <p>Welcome Back!</p>
+
+        <form>
+
+            <label>Email:</label>
+            <input type="email" placeholder="Enter your email" required>
+
+            <label>Password:</label>
+            <input type="password" placeholder="Enter your password" required>
+
+            <input type="submit" value="Login" class="btn">
+
+        </form>
+
+        <p>
+            New Student?
+            <a href="stureg.html">Register Here</a>
+        </p>
+
+    </div>
+
+</body>
+</html>

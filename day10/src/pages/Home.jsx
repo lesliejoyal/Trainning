@@ -61,31 +61,37 @@ export function Home() {
             title="Football"
             subtitle="Boots & Jerseys"
             link="/shop?category=Football"
-            imageUrl="https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=600&auto=format&fit=crop&q=60"
+            imageUrl="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=600&auto=format&fit=crop&q=60"
           />
           <CategoryCard
             title="Cricket"
             subtitle="Bats & Pads"
             link="/shop?category=Cricket"
-            imageUrl="https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=600&auto=format&fit=crop&q=60"
+            imageUrl="https://images.unsplash.com/photo-1593341646782-e0b495cff86d?w=600&auto=format&fit=crop&q=60"
+          />
+          <CategoryCard
+            title="Basketball"
+            subtitle="Shoes & Equipment"
+            link="/shop?category=Basketball"
+            imageUrl="https://images.unsplash.com/photo-1543508282-6319a3e2621d?w=600&auto=format&fit=crop&q=60"
+          />
+          <CategoryCard
+            title="Tennis & Badminton"
+            subtitle="Rackets & Gear"
+            link="/shop?category=Tennis"
+            imageUrl="https://images.unsplash.com/photo-1622279457486-62dcc4a4db13?w=600&auto=format&fit=crop&q=60"
           />
           <CategoryCard
             title="Running"
-            subtitle="Ultraboost & More"
+            subtitle="Ultraboost & Clothing"
             link="/shop?category=Running"
-            imageUrl="https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=600&auto=format&fit=crop&q=60"
+            imageUrl="https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&auto=format&fit=crop&q=60"
           />
           <CategoryCard
-            title="Originals"
-            subtitle="Stan Smith & Superstar"
-            link="/shop?category=Originals"
-            imageUrl="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&auto=format&fit=crop&q=60"
-          />
-          <CategoryCard
-            title="Lifestyle"
-            subtitle="Hoodies & Tracks"
-            link="/shop?category=Lifestyle"
-            imageUrl="https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&auto=format&fit=crop&q=60"
+            title="Gym & Training"
+            subtitle="Bags & Accessories"
+            link="/shop?category=Gym"
+            imageUrl="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=60"
           />
         </div>
       </div>
@@ -98,7 +104,7 @@ export function Home() {
             View All →
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-1 gap-y-10">
           {footballProducts.map((product) => (
             <ProductCard key={product.id} {...product} />
           ))}
@@ -113,29 +119,29 @@ export function Home() {
             View All →
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-1 gap-y-10">
           {cricketProducts.map((product) => (
             <ProductCard key={product.id} {...product} />
           ))}
         </div>
       </div>
 
-      {/* Mid Banner – Originals */}
+      {/* Mid Banner – Performance */}
       <div className="w-full relative overflow-hidden my-8">
         <img
           src="https://images.unsplash.com/photo-1556906781-9a412961c28c?w=1600&auto=format&fit=crop&q=80"
-          alt="Adibas Originals"
+          alt="Adibas Performance"
           className="w-full h-[400px] object-cover object-center"
         />
         <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center px-4">
           <h2 className="text-white text-4xl md:text-6xl font-black uppercase tracking-tighter mb-4">
-            ADIBAS ORIGINALS
+            ADIBAS PERFORMANCE
           </h2>
           <p className="text-white text-base font-bold mb-8 max-w-xl opacity-90">
-            Embrace the legacy. Classic silhouettes that define street culture.
+            Push your limits. Engineered for athletes who demand the absolute best.
           </p>
           <Link
-            to="/shop?category=Originals"
+            to="/shop?category=Running"
             className="bg-white text-black font-black uppercase tracking-wider py-4 px-10 inline-flex items-center gap-3 hover:bg-gray-100 transition-colors text-sm"
           >
             Explore Collection <span>→</span>
@@ -151,7 +157,7 @@ export function Home() {
             View All →
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-1 gap-y-10">
           {popularProducts.map((product) => (
             <ProductCard key={product.id} {...product} />
           ))}

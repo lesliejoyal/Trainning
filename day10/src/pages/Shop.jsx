@@ -89,11 +89,9 @@ export function Shop() {
 
       {/* Product Grid */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-1 gap-y-10">
           {filteredProducts.map((product) => (
-            <Link key={product.id} to={`/product/${product.id}`}>
-              <ProductCard {...product} />
-            </Link>
+            <ProductCard key={product.id} {...product} />
           ))}
         </div>
       ) : (

@@ -1,150 +1,126 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../../store/slices/authSlice';
-import { Search, User, Heart, ShoppingBag, Menu, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Menu, Sun, Moon, LogOut, User, Bell, Search, GraduationCap } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+import { useTheme } from '../../hooks/useAuth';
 
-// Adibas Mountain Logo (Adidas style)
-const AdibasLogo = () => (
-  <svg width="60" height="40" viewBox="0 0 100 65" fill="black" xmlns="http://www.w3.org/2000/svg">
-    <path d="M14.6 62.3L2.2 40.5L16.8 32.2L29.2 54L14.6 62.3Z" />
-    <path d="M38.8 62.3L16.2 22.5L30.8 14.2L53.4 54L38.8 62.3Z" />
-    <path d="M63.1 62.3L30.1 4.5L44.7 -3.8147e-06L77.7 54L63.1 62.3Z" />
-  </svg>
-);
-
-export function Navbar() {
-  const { isAuthenticated, isAdmin } = useSelector((state) => state.auth);
-  const cartItems = useSelector((state) => state.cart.items);
-  const wishlistItems = useSelector((state) => state.wishlist.items);
-  const dispatch = useDispatch();
+const Navbar = ({ toggleSidebar }) => {
+  const { user, logout } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
-  
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-  const wishlistCount = wishlistItems.length;
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
-      setSearchQuery('');
-    }
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
+  const initials = user?.name
+    ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+    : 'U';
+
   return (
-    <header className="w-full sticky top-0 z-50 bg-white">
-      {/* Top Promo Bar */}
-      <div className="bg-black text-white text-xs font-bold text-center py-2 tracking-widest cursor-pointer hover:bg-gray-800 transition-colors">
-        SIGN UP & GET 10% OFF <span className="ml-1">v</span>
-      </div>
-
-      {/* Utility Nav */}
-      <div className="hidden lg:flex justify-end items-center px-10 py-1 text-xs text-gray-500 space-x-4 border-b border-gray-100">
-        <Link to="/contact" className="hover:underline">help</Link>
-        <Link to="/orders" className="hover:underline">orders and returns</Link>
-        {!isAuthenticated ? (
-          <>
-            <Link to="/register" className="hover:underline">sign up</Link>
-            <Link to="/login" className="hover:underline">log in</Link>
-          </>
-        ) : (
-          <>
-            <span className="font-bold text-black uppercase">Member</span>
-            {isAdmin && <Link to="/admin" className="hover:underline font-bold text-blue-600">Admin Dashboard</Link>}
-            <Link to="/dashboard" className="hover:underline">dashboard</Link>
-            <button onClick={() => { dispatch(logout()); navigate('/'); }} className="hover:underline">log out</button>
-          </>
-        )}
-      </div>
-
-      {/* Main Nav */}
-      <div className="flex items-center justify-between px-4 lg:px-10 h-16 border-b border-gray-200">
-        
-        {/* Mobile Menu Toggle & Logo */}
-        <div className="flex items-center">
-          <button className="lg:hidden mr-4" onClick={() => setIsMobileMenuOpen(true)}>
-            <Menu className="w-6 h-6" />
+    <header className="h-16 bg-white dark:bg-[#1e293b] border-b border-[#e2e8f0] dark:border-slate-700 sticky top-0 z-50">
+      <div className="h-full flex items-center justify-between px-4 md:px-6">
+        {/* Left — logo + hamburger */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={toggleSidebar}
+            className="btn btn-ghost p-2 lg:hidden"
+            aria-label="Toggle sidebar"
+          >
+            <Menu className="w-5 h-5" />
           </button>
-          <Link to="/" className="flex items-end mt-2">
-            <AdibasLogo />
-          </Link>
-        </div>
-
-        {/* Desktop Links */}
-        <nav className="hidden lg:flex items-center space-x-6 absolute left-1/2 -translate-x-1/2 top-4 h-full pt-2">
-          <Link to="/shop?category=Football" className="text-sm font-bold tracking-wider uppercase border-b-2 border-transparent hover:border-black h-full flex items-center">Football</Link>
-          <Link to="/shop?category=Cricket" className="text-sm font-bold tracking-wider uppercase border-b-2 border-transparent hover:border-black h-full flex items-center">Cricket</Link>
-          <Link to="/shop?category=Running" className="text-sm font-bold tracking-wider uppercase border-b-2 border-transparent hover:border-black h-full flex items-center">Running</Link>
-          <Link to="/shop" className="text-sm tracking-wider uppercase border-b-2 border-transparent hover:border-black h-full flex items-center">Originals</Link>
-        </nav>
-
-        {/* Right Icons & Search */}
-        <div className="flex items-center space-x-4">
-          <form onSubmit={handleSearch} className="hidden md:flex relative w-48 lg:w-56 bg-gray-100 rounded-none h-10 items-center px-3 border border-transparent focus-within:border-black transition-colors">
-            <input 
-              type="text" 
-              placeholder="Search" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-transparent border-none outline-none w-full text-sm text-black placeholder-gray-500"
-            />
-            <button type="submit">
-              <Search className="w-5 h-5 text-gray-700 cursor-pointer" />
-            </button>
-          </form>
-          <Link to="/dashboard" className="text-gray-900 hover:text-gray-600">
-            <User className="w-6 h-6" />
-          </Link>
-          <Link to="/wishlist" className="text-gray-900 hover:text-gray-600 relative">
-            <Heart className="w-6 h-6" />
-            {wishlistCount > 0 && (
-              <span className="absolute -top-1 -right-2 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                {wishlistCount}
-              </span>
-            )}
-          </Link>
-          <Link to="/cart" className="text-gray-900 hover:text-gray-600 relative">
-            <ShoppingBag className="w-6 h-6" />
-            <span className="absolute -top-1 -right-2 bg-yellow-400 text-black text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-              {cartCount}
-            </span>
-          </Link>
-        </div>
-      </div>
-
-      {/* Mobile Menu Sidebar */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] lg:hidden">
-          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsMobileMenuOpen(false)}></div>
-          <div className="absolute inset-y-0 left-0 w-4/5 max-w-sm bg-white shadow-xl flex flex-col">
-            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-              <AdibasLogo />
-              <button onClick={() => setIsMobileMenuOpen(false)}>
-                <X className="w-6 h-6" />
-              </button>
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#1a1a2e] dark:bg-[#4f6ef7] flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <nav className="flex-1 overflow-y-auto py-4 px-4 flex flex-col space-y-4">
-              <form onSubmit={(e) => { handleSearch(e); setIsMobileMenuOpen(false); }} className="flex relative w-full bg-gray-100 rounded-none h-12 items-center px-3 mb-4">
-                <input 
-                  type="text" 
-                  placeholder="Search" 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent border-none outline-none w-full text-base text-black placeholder-gray-500"
-                />
-                <button type="submit"><Search className="w-5 h-5 text-gray-700" /></button>
-              </form>
-              <Link to="/shop?category=Football" className="font-bold text-lg uppercase tracking-wide border-b border-gray-100 pb-2" onClick={() => setIsMobileMenuOpen(false)}>Football</Link>
-              <Link to="/shop?category=Cricket" className="font-bold text-lg uppercase tracking-wide border-b border-gray-100 pb-2" onClick={() => setIsMobileMenuOpen(false)}>Cricket</Link>
-              <Link to="/shop?category=Running" className="font-bold text-lg uppercase tracking-wide border-b border-gray-100 pb-2" onClick={() => setIsMobileMenuOpen(false)}>Running</Link>
-              <Link to="/shop" className="text-lg uppercase tracking-wide border-b border-gray-100 pb-2" onClick={() => setIsMobileMenuOpen(false)}>Originals</Link>
-            </nav>
+            <div className="hidden sm:block">
+              <p className="text-[16px] font-bold text-[#1a1a2e] dark:text-white leading-none">
+                Student<span className="text-[#4f6ef7]">buddy</span>
+              </p>
+            </div>
           </div>
         </div>
-      )}
+
+        {/* Center — search bar */}
+        <div className="hidden md:flex flex-1 max-w-md mx-8">
+          <div className="relative w-full">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94a3b8]" />
+            <input
+              type="text"
+              placeholder="Search students, subjects..."
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#f1f5f9] dark:bg-[#0f172a] border border-[#e2e8f0] dark:border-slate-600 text-sm text-[#334155] dark:text-white placeholder-[#94a3b8] focus:ring-2 focus:ring-[#4f6ef7]/30 focus:border-[#4f6ef7] outline-none transition-all"
+            />
+          </div>
+        </div>
+
+        {/* Right — actions */}
+        <div className="flex items-center gap-1.5">
+          {/* Dark Mode Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="btn btn-ghost p-2.5 rounded-xl relative"
+            aria-label="Toggle theme"
+          >
+            <div className="relative w-5 h-5">
+              <Sun  className={`w-5 h-5 absolute inset-0 transition-all duration-300 ${isDarkMode ? 'opacity-0 rotate-90 scale-0' : 'opacity-100 rotate-0 scale-100'}`} />
+              <Moon className={`w-5 h-5 absolute inset-0 transition-all duration-300 ${isDarkMode ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0'}`} />
+            </div>
+          </button>
+
+          {/* Notification Bell */}
+          <button className="btn btn-ghost p-2.5 rounded-xl relative" aria-label="Notifications">
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-[#ef4444] rounded-full ring-2 ring-white dark:ring-[#1e293b]" />
+          </button>
+
+          {/* User Avatar Dropdown */}
+          <div className="relative ml-1">
+            <button
+              onClick={() => setDropdownOpen((o) => !o)}
+              className="flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-xl hover:bg-[#f1f5f9] dark:hover:bg-slate-700 transition-colors"
+            >
+              <div className="avatar w-8 h-8 text-xs bg-gradient-to-br from-[#4f6ef7] to-[#a78bfa]">
+                {initials}
+              </div>
+              <div className="hidden sm:block text-left">
+                <p className="text-xs font-semibold text-[#1e293b] dark:text-white leading-none">
+                  {user?.name?.split(' ')[0]}
+                </p>
+                <p className="text-[10px] text-[#94a3b8] capitalize leading-none mt-0.5">
+                  {user?.role}
+                </p>
+              </div>
+            </button>
+
+            {dropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
+                <div className="absolute right-0 top-full mt-2 w-52 card shadow-xl z-50 py-2 animate-fade-in">
+                  <div className="px-4 py-3 border-b border-[#e2e8f0] dark:border-slate-700">
+                    <p className="text-sm font-semibold text-[#1e293b] dark:text-white">{user?.name}</p>
+                    <p className="text-xs text-[#94a3b8] capitalize">{user?.role}</p>
+                  </div>
+                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#475569] dark:text-slate-300 hover:bg-[#f1f5f9] dark:hover:bg-slate-700 transition-colors">
+                    <User className="w-4 h-4" />
+                    My Profile
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[#ef4444] hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
     </header>
   );
-}
+};
+
+export default Navbar;

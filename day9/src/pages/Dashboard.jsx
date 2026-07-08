@@ -1,178 +1,163 @@
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import { logout } from '../store/slices/authSlice';
-import { Button } from '../components/ui/Button';
+import React from 'react';
+import { Layout } from '../components/Layout';
+import { useStudentStore } from '../data/store';
+import { Users, UserCheck, UserX, BookOpen, TrendingUp, Clock, Award } from 'lucide-react';
 
-export function Dashboard() {
-  const { user } = useSelector((state) => state.auth);
-  const orders = useSelector(state => state.cart.items);
-  const wishlistItems = useSelector(state => state.wishlist.items);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
+export const Dashboard = () => {
+  const { getDashboardStats, students, getAcademicMarks } = useStudentStore();
+  const stats = getDashboardStats();
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/');
-  };
+  const subjects = ['Assignment', 'Quiz', 'Internal'];
+  const subjectColors = ['#4f6ef7', '#22c55e', '#f59e0b', '#ef4444', '#a78bfa'];
 
-  const tabs = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'orders', label: 'My Orders' },
-    { id: 'wishlist', label: 'Wishlist' },
-    { id: 'settings', label: 'Settings' },
-  ];
+  // Calculate subject-wise averages from academic marks
+  const subjectAverages = subjects.map((subj, i) => {
+    const key = subj.toLowerCase();
+    let total = 0, count = 0;
+    students.forEach(s => {
+      const marks = getAcademicMarks(s.studentId);
+      if (marks && marks[key] !== undefined && marks[key] !== '') {
+        total += Number(marks[key]);
+        count++;
+      }
+    });
+    return {
+      name: subj,
+      avg: count > 0 ? Math.round(total / count) : 0,
+      color: subjectColors[i % subjectColors.length],
+    };
+  });
+
+  // Recent students (last 5)
+  const recentStudents = students.slice(-5).reverse();
+
+  // Overall performance
+  const overallAvg = subjectAverages.length > 0
+    ? Math.round(subjectAverages.reduce((s, a) => s + a.avg, 0) / subjectAverages.length)
+    : 0;
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex flex-col md:flex-row gap-8">
+    <Layout>
+      <div className="space-y-6 animate-fade-in">
 
-        {/* Sidebar */}
-        <div className="w-full md:w-1/4 flex-shrink-0">
-          {/* Profile Card */}
-          <div className="bg-black text-white p-6 mb-4">
-            <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mb-4">
-              <span className="text-black font-black text-xl">{user?.name?.charAt(0).toUpperCase() || 'A'}</span>
+        {/* Alert Banner */}
+        <div className="flex items-center justify-between bg-white dark:bg-[#1e293b] rounded-2xl px-5 py-3 shadow-sm border border-[#e2e8f0] dark:border-slate-700">
+          <div className="flex items-center gap-3">
+            <span className="w-2 h-2 rounded-full bg-[#ef4444] animate-pulse" />
+            <p className="text-sm text-[#475569] dark:text-slate-300">
+              Welcome back! You have <span className="font-bold text-[#1e293b] dark:text-white">{stats.totalStudents} students</span> enrolled.
+            </p>
+          </div>
+          <button className="btn btn-primary text-xs px-4 py-2">View All</button>
+        </div>
+
+        {/* Stats Cards Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: 'Total Students', value: stats.totalStudents, icon: Users, color: '#4f6ef7', bg: '#eef2ff' },
+            { label: 'Present Today', value: stats.presentToday, icon: UserCheck, color: '#22c55e', bg: '#dcfce7' },
+            { label: 'Absent Today', value: stats.absentToday, icon: UserX, color: '#ef4444', bg: '#fee2e2' },
+            { label: 'Avg. Performance', value: `${overallAvg}%`, icon: TrendingUp, color: '#a78bfa', bg: '#f3e8ff' },
+          ].map(({ label, value, icon: Icon, color, bg }) => (
+            <div key={label} className="card p-5 flex items-center gap-4 animate-slide-up">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: bg }}>
+                <Icon className="w-6 h-6" style={{ color }} />
+              </div>
+              <div>
+                <p className="text-[13px] font-medium text-[#94a3b8]">{label}</p>
+                <p className="text-2xl font-bold text-[#1e293b] dark:text-white">{value}</p>
+              </div>
             </div>
-            <h2 className="font-black uppercase text-lg leading-tight">{user?.name || 'Member'}</h2>
-            <p className="text-gray-400 text-xs mt-1">{user?.email}</p>
-            <div className="mt-3 border-t border-white/20 pt-3">
-              <p className="text-yellow-400 font-bold text-xs uppercase">adiClub Level 1 · 0 pts</p>
+          ))}
+        </div>
+
+        {/* Two column layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* Left: Subject Progress */}
+          <div className="lg:col-span-2 card p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-[#1e293b] dark:text-white flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-[#4f6ef7]" />
+                Subject-wise Progress
+              </h2>
+              <span className="text-xs font-semibold text-[#4f6ef7] cursor-pointer hover:underline">See All</span>
+            </div>
+            <div className="space-y-5">
+              {subjectAverages.map(({ name, avg, color }) => (
+                <div key={name} className="flex items-center gap-4">
+                  <p className="text-sm font-medium text-[#475569] dark:text-slate-300 w-28 shrink-0">{name}</p>
+                  <div className="flex-1 h-3 bg-[#f1f5f9] dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{ width: `${avg}%`, backgroundColor: color }}
+                    />
+                  </div>
+                  <span className="text-xs font-bold text-[#475569] dark:text-slate-300 w-10 text-right">{avg}%</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Nav Tabs */}
-          <nav className="flex flex-col border border-gray-200">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`p-4 text-left font-bold uppercase text-sm border-b border-gray-100 last:border-b-0 transition-colors ${
-                  activeTab === tab.id ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-50'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
+          {/* Right: Overall Progress Circle */}
+          <div className="card p-6 flex flex-col items-center justify-center">
+            <h2 className="text-lg font-bold text-[#1e293b] dark:text-white mb-6 flex items-center gap-2">
+              <Award className="w-5 h-5 text-[#4f6ef7]" />
+              Avg. Performance
+            </h2>
+            {/* Circular Progress */}
+            <div className="relative w-36 h-36 mb-4">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#f1f5f9" strokeWidth="10" className="dark:stroke-slate-700" />
+                <circle
+                  cx="60" cy="60" r="52" fill="none"
+                  stroke="#4f6ef7"
+                  strokeWidth="10"
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 52}`}
+                  strokeDashoffset={`${2 * Math.PI * 52 * (1 - overallAvg / 100)}`}
+                  className="transition-all duration-1000"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-3xl font-bold text-[#1e293b] dark:text-white">{overallAvg}%</span>
+                <span className="text-[11px] text-[#94a3b8]">Completed</span>
+              </div>
+            </div>
+            <p className="text-xs text-[#94a3b8] text-center">Average across all subjects</p>
+          </div>
 
-          <button
-            onClick={handleLogout}
-            className="w-full mt-4 border-2 border-black font-bold uppercase text-sm py-3 px-4 text-left hover:bg-black hover:text-white transition-colors"
-          >
-            Log Out →
-          </button>
         </div>
 
-        {/* Main Content */}
-        <div className="w-full md:w-3/4">
-
-          {activeTab === 'overview' && (
-            <div>
-              <h1 className="text-3xl font-black uppercase tracking-tight mb-8">
-                Welcome back, {user?.name?.split(' ')[0] || 'Member'}!
-              </h1>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                <div className="border-2 border-black p-6 text-center">
-                  <p className="text-4xl font-black">{orders.length}</p>
-                  <p className="font-bold uppercase text-sm text-gray-500 mt-1">Items in Bag</p>
+        {/* Bottom: Recent Students */}
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-lg font-bold text-[#1e293b] dark:text-white flex items-center gap-2">
+              <Clock className="w-5 h-5 text-[#4f6ef7]" />
+              Recent Students
+            </h2>
+            <span className="text-xs font-semibold text-[#4f6ef7] cursor-pointer hover:underline">See All</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {recentStudents.length > 0 ? recentStudents.map((s) => (
+              <div key={s.studentId} className="flex items-center gap-3 p-3 bg-[#f8fafc] dark:bg-[#0f172a] rounded-xl border border-[#e2e8f0] dark:border-slate-700">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4f6ef7] to-[#a78bfa] flex items-center justify-center text-white text-xs font-bold shrink-0">
+                  {s.name?.split(' ')[0]?.[0]}
                 </div>
-                <div className="border-2 border-black p-6 text-center">
-                  <p className="text-4xl font-black">{wishlistItems.length}</p>
-                  <p className="font-bold uppercase text-sm text-gray-500 mt-1">Wishlisted</p>
-                </div>
-                <div className="border-2 border-black p-6 text-center">
-                  <p className="text-4xl font-black text-yellow-500">0</p>
-                  <p className="font-bold uppercase text-sm text-gray-500 mt-1">adiClub Points</p>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-[#1e293b] dark:text-white truncate">{s.name}</p>
+                  <p className="text-[11px] text-[#94a3b8] truncate">{s.department}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Link to="/cart" className="border border-gray-200 p-6 hover:border-black transition-colors block">
-                  <h3 className="font-black uppercase mb-2">Shopping Bag</h3>
-                  <p className="text-sm text-gray-500 font-medium mb-4">You have {orders.length} item(s) in your bag.</p>
-                  <span className="font-bold text-sm uppercase underline">View Bag →</span>
-                </Link>
-                <Link to="/wishlist" className="border border-gray-200 p-6 hover:border-black transition-colors block">
-                  <h3 className="font-black uppercase mb-2">Wishlist</h3>
-                  <p className="text-sm text-gray-500 font-medium mb-4">{wishlistItems.length} saved item(s).</p>
-                  <span className="font-bold text-sm uppercase underline">View Wishlist →</span>
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'orders' && (
-            <div>
-              <h1 className="text-3xl font-black uppercase tracking-tight mb-8">Order History</h1>
-              <div className="border border-gray-200 p-12 text-center bg-gray-50">
-                <p className="text-6xl mb-4">📦</p>
-                <h2 className="font-black uppercase text-xl mb-2">No past orders yet</h2>
-                <p className="text-gray-500 font-medium mb-6">When you complete a purchase, your orders will appear here.</p>
-                <Link to="/shop"><Button>Start Shopping</Button></Link>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'wishlist' && (
-            <div>
-              <h1 className="text-3xl font-black uppercase tracking-tight mb-8">My Wishlist</h1>
-              {wishlistItems.length === 0 ? (
-                <div className="border border-gray-200 p-12 text-center bg-gray-50">
-                  <p className="text-6xl mb-4">❤️</p>
-                  <h2 className="font-black uppercase text-xl mb-2">Your wishlist is empty</h2>
-                  <p className="text-gray-500 font-medium mb-6">Heart items you love while browsing.</p>
-                  <Link to="/shop"><Button>Discover Products</Button></Link>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {wishlistItems.map(item => (
-                    <Link key={item.id} to={`/product/${item.id}`} className="border border-gray-200 p-4 hover:border-black transition-colors block">
-                      <div className="aspect-square bg-gray-100 mb-3 overflow-hidden">
-                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                      </div>
-                      <p className="font-bold text-xs uppercase truncate">{item.name}</p>
-                      <p className="text-sm font-bold mt-1">₹{typeof item.price === 'number' ? item.price.toLocaleString() : item.price}</p>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'settings' && (
-            <div>
-              <h1 className="text-3xl font-black uppercase tracking-tight mb-8">Account Settings</h1>
-              <div className="space-y-6 max-w-lg">
-                <div className="border border-gray-200 p-6">
-                  <h3 className="font-black uppercase mb-4">Personal Information</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                      <span className="text-sm font-bold text-gray-500 uppercase">Name</span>
-                      <span className="font-bold text-sm">{user?.name || '—'}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                      <span className="text-sm font-bold text-gray-500 uppercase">Email</span>
-                      <span className="font-bold text-sm">{user?.email || '—'}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-sm font-bold text-gray-500 uppercase">Member Since</span>
-                      <span className="font-bold text-sm">{new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long' })}</span>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="w-full border-2 border-red-500 text-red-500 font-black uppercase py-3 hover:bg-red-500 hover:text-white transition-colors"
-                >
-                  Log Out of Account
-                </button>
-              </div>
-            </div>
-          )}
-
+            )) : (
+              <p className="col-span-full text-center text-sm text-[#94a3b8] py-8">No students added yet</p>
+            )}
+          </div>
         </div>
+
       </div>
-    </div>
+    </Layout>
   );
-}
+};
+
+export default Dashboard;

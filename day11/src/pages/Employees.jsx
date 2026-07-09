@@ -1,322 +1,309 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getInitials, getAvatarColor, getDeptClass } from '../utils';
+import { useState, useMemo, useEffect } from 'react';
+import { Plus, Search, Filter, Eye, Pencil, Trash2, ChevronLeft, ChevronRight, X, Users, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { useEmployees } from '../hooks/useEmployees';
+import EmployeeModal from '../components/employees/EmployeeModal';
+import EmployeeViewModal from '../components/employees/EmployeeViewModal';
+import ConfirmDialog from '../components/employees/ConfirmDialog';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { Input, Select } from '../components/ui/Form';
+import { PageHeader } from '../components/ui/PageHeader';
 
-/* ── Employee Profile Modal ── */
-function ProfileModal({ employee, onClose, onEdit, onDelete }) {
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal modal-md" onClick={e => e.stopPropagation()}>
-        <button className="modal-close-btn" onClick={onClose}>✕</button>
+const DEPARTMENTS = ['All', 'Engineering', 'Product', 'Design', 'HR', 'Marketing', 'Finance', 'Sales', 'Operations'];
+const STATUSES    = ['All', 'Active', 'On Leave', 'Remote', 'Terminated'];
+const PAGE_SIZE   = 7;
 
-        <div className="profile-header">
-          <div className={`emp-avatar xl ${getAvatarColor(employee.name)}`} style={{ margin: '0 auto' }}>
-            {getInitials(employee.name)}
-          </div>
-          <div className="profile-name">{employee.name}</div>
-          <div className="profile-email">{employee.email}</div>
-          <br />
-          <span className={`dept-badge ${getDeptClass(employee.department)}`}>
-            {employee.department || 'Unassigned'}
-          </span>
-        </div>
+const avatarGradients = [
+  'from-indigo-500 to-violet-500', 'from-emerald-500 to-teal-500',
+  'from-rose-500 to-pink-500',     'from-amber-500 to-orange-500',
+  'from-sky-500 to-blue-500',      'from-fuchsia-500 to-purple-500',
+];
+const getGradient = (name = '') => avatarGradients[name.charCodeAt(0) % avatarGradients.length];
 
-        <div className="profile-fields">
-          <div>
-            <div className="profile-field-label">Employee ID</div>
-            <div className="profile-field-value" style={{ fontFamily: 'monospace', color: 'var(--purple-lt)' }}>
-              #{employee.id}
-            </div>
-          </div>
-          <div>
-            <div className="profile-field-label">Status</div>
-            <div className="profile-field-value"><span className="status-dot">Active</span></div>
-          </div>
-          <div>
-            <div className="profile-field-label">Department</div>
-            <div className="profile-field-value">{employee.department || 'N/A'}</div>
-          </div>
-          <div>
-            <div className="profile-field-label">Email</div>
-            <div className="profile-field-value" style={{ wordBreak: 'break-all', fontSize: 13 }}>{employee.email}</div>
-          </div>
-        </div>
+const Employees = () => {
+  const { employees, addEmployee, updateEmployee, deleteEmployee } = useEmployees();
 
-        <div className="divider" />
+  const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch]         = useState('');
+  const [deptFilter, setDeptFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [showFilters, setShowFilters] = useState(false);
+  const [page, setPage]             = useState(1);
+  const [modal, setModal]         = useState({ type: null, employee: null });
 
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button className="btn btn-edit" style={{ flex: 1 }} onClick={() => { onEdit(employee); onClose(); }}>
-            ✏️ Edit Employee
-          </button>
-          <button className="btn btn-danger" style={{ flex: 1 }} onClick={() => { onDelete(employee.id); onClose(); }}>
-            🗑️ Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function Employees({ employees, onEdit, onDelete }) {
-  const navigate = useNavigate();
-  const [search, setSearch] = useState('');
-  const [filterDept, setFilterDept] = useState('');
-  const [sortKey, setSortKey] = useState('name');
-  const [sortDir, setSortDir] = useState('asc');
-  const [viewMode, setViewMode] = useState('table');
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-
-  const departments = useMemo(() =>
-    [...new Set(employees.map(e => e.department).filter(Boolean))].sort(),
-    [employees]
-  );
+  useEffect(() => {
+    // Simulate loading state for 500ms on mount
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    let list = employees.filter(emp => {
-      const matchSearch =
-        emp.name?.toLowerCase().includes(q) ||
-        emp.email?.toLowerCase().includes(q) ||
-        emp.department?.toLowerCase().includes(q);
-      const matchDept = filterDept ? emp.department === filterDept : true;
-      return matchSearch && matchDept;
+    return employees.filter((emp) => {
+      const matchSearch = !q || [emp.firstName, emp.lastName, emp.email, emp.role, emp.department]
+        .some((f) => f?.toLowerCase().includes(q));
+      const matchDept   = deptFilter   === 'All' || emp.department === deptFilter;
+      const matchStatus = statusFilter === 'All' || emp.status     === statusFilter;
+      return matchSearch && matchDept && matchStatus;
     });
+  }, [employees, search, deptFilter, statusFilter]);
 
-    list = [...list].sort((a, b) => {
-      let va = (a[sortKey] || '').toString().toLowerCase();
-      let vb = (b[sortKey] || '').toString().toLowerCase();
-      if (sortKey === 'id') { va = Number(a.id); vb = Number(b.id); }
-      if (va < vb) return sortDir === 'asc' ? -1 : 1;
-      if (va > vb) return sortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage   = Math.min(page, totalPages);
+  const paginated  = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-    return list;
-  }, [employees, search, filterDept, sortKey, sortDir]);
+  const resetPage = () => setPage(1);
 
-  const toggleSort = (key) => {
-    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
-    else { setSortKey(key); setSortDir('asc'); }
+  const openAdd    = () => setModal({ type: 'add',  employee: null });
+  const openEdit   = (emp) => setModal({ type: 'edit', employee: emp });
+  const openView   = (emp) => setModal({ type: 'view', employee: emp });
+  const openDelete = (emp) => setModal({ type: 'delete', employee: emp });
+  const closeModal = () => setModal({ type: null, employee: null });
+
+  const handleSave = (data) => {
+    if (modal.type === 'add') {
+      addEmployee(data);
+      toast.success('Employee added successfully');
+    }
+    if (modal.type === 'edit') {
+      updateEmployee(modal.employee.id, data);
+      toast.success('Employee updated successfully');
+    }
+    closeModal();
   };
 
-  const sortIcon = (key) => {
-    if (sortKey !== key) return ' ↕';
-    return sortDir === 'asc' ? ' ↑' : ' ↓';
+  const handleDelete = () => {
+    deleteEmployee(modal.employee.id);
+    toast.success('Employee deleted successfully');
+    closeModal();
+  };
+
+  const activeFilters = [deptFilter !== 'All', statusFilter !== 'All'].filter(Boolean).length;
+
+  const getStatusVariant = (status) => {
+    switch (status) {
+      case 'Active': return 'success';
+      case 'On Leave': return 'warning';
+      case 'Terminated': return 'error';
+      case 'Remote': return 'info';
+      default: return 'default';
+    }
   };
 
   return (
-    <div>
-      {/* Header */}
-      <div className="page-header animate-fade-up">
-        <div>
-          <div className="page-title">Employee Directory</div>
-          <div className="page-subtitle">
-            {filtered.length} of {employees.length} employees
-          </div>
-        </div>
-        <div className="page-actions">
-          <button className="btn btn-primary" onClick={() => navigate('/add')}>
-            ＋ Add Employee
-          </button>
-        </div>
-      </div>
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <PageHeader 
+        title="Employees" 
+        description={`${filtered.length} of ${employees.length} employees`}
+      >
+        <Button onClick={openAdd}>
+          <Plus className="mr-2 h-4 w-4" /> Add Employee
+        </Button>
+      </PageHeader>
 
-      {/* Table / Grid Card */}
-      <div className="card animate-fade-up animate-delay-1">
-        {/* Filter Bar */}
-        <div className="card-header">
-          <div className="filter-bar">
-            <div className="search-wrap">
-              <span className="search-icon">🔍</span>
-              <input
-                className="search-input"
-                type="text"
-                placeholder="Search name, email, dept…"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-            </div>
-
-            <select
-              className="filter-select-sm"
-              value={filterDept}
-              onChange={e => setFilterDept(e.target.value)}
-            >
-              <option value="">All Departments</option>
-              {departments.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
-
-            {(search || filterDept) && (
-              <button className="btn btn-secondary btn-sm"
-                onClick={() => { setSearch(''); setFilterDept(''); }}>
-                ✕ Clear
+      <Card>
+        <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Input
+              type="text"
+              placeholder="Search by name, email, role, department…"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); resetPage(); }}
+              className="pl-10"
+            />
+            {search && (
+              <button onClick={() => { setSearch(''); resetPage(); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                <X className="h-4 w-4" />
               </button>
             )}
           </div>
 
-          {/* View Toggle */}
-          <div className="view-toggle">
-            <button
-              className={`view-btn ${viewMode === 'table' ? 'active' : ''}`}
-              onClick={() => setViewMode('table')}
-              title="Table view"
-            >≡</button>
-            <button
-              className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-              onClick={() => setViewMode('grid')}
-              title="Grid view"
-            >⊞</button>
-          </div>
+          <Button
+            variant={showFilters || activeFilters > 0 ? 'primary' : 'secondary'}
+            onClick={() => setShowFilters(!showFilters)}
+            className="relative"
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            Filters
+            {activeFilters > 0 && (
+              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white">
+                {activeFilters}
+              </span>
+            )}
+          </Button>
         </div>
 
-        {/* Content */}
-        {filtered.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">{employees.length === 0 ? '🧑‍💼' : '🔍'}</div>
-            <div className="empty-title">
-              {employees.length === 0 ? 'No employees yet' : 'No results found'}
+        {showFilters && (
+          <div className="flex flex-wrap gap-3 border-t border-slate-100 dark:border-slate-800 px-4 pb-4 pt-3">
+            <div className="flex flex-col gap-1 w-40">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Department</span>
+              <Select value={deptFilter} onChange={(e) => { setDeptFilter(e.target.value); resetPage(); }}>
+                {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+              </Select>
             </div>
-            <div className="empty-subtitle">
-              {employees.length === 0
-                ? 'Add your first employee to get started'
-                : 'Try adjusting your search or filter'}
+
+            <div className="flex flex-col gap-1 w-40">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Status</span>
+              <Select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); resetPage(); }}>
+                {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </Select>
             </div>
-            {employees.length === 0 && (
-              <>
-                <br />
-                <button className="btn btn-primary" onClick={() => navigate('/add')}>
-                  ＋ Add Employee
-                </button>
-              </>
+
+            {activeFilters > 0 && (
+              <div className="flex flex-col justify-end">
+                <Button variant="danger" size="sm" onClick={() => { setDeptFilter('All'); setStatusFilter('All'); resetPage(); }}>
+                  Clear filters
+                </Button>
+              </div>
             )}
           </div>
-        ) : viewMode === 'table' ? (
-          <div className="table-wrap">
-            <table className="data-table">
+        )}
+      </Card>
+
+      <Card className="overflow-hidden">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400">
+            <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+            <p className="text-sm font-medium">Loading employees...</p>
+          </div>
+        ) : paginated.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400">
+            <Users className="h-12 w-12 opacity-40" />
+            <p className="text-sm font-medium">No employees match your filters.</p>
+            <Button variant="ghost" onClick={() => { setSearch(''); setDeptFilter('All'); setStatusFilter('All'); }}>
+              Clear all filters
+            </Button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
               <thead>
-                <tr>
-                  <th className={sortKey === 'id' ? 'sorted' : ''} onClick={() => toggleSort('id')}>
-                    #{sortIcon('id')}
-                  </th>
-                  <th className={sortKey === 'name' ? 'sorted' : ''} onClick={() => toggleSort('name')}>
-                    Employee{sortIcon('name')}
-                  </th>
-                  <th className={sortKey === 'department' ? 'sorted' : ''} onClick={() => toggleSort('department')}>
-                    Department{sortIcon('department')}
-                  </th>
-                  <th className={sortKey === 'email' ? 'sorted' : ''} onClick={() => toggleSort('email')}>
-                    Email{sortIcon('email')}
-                  </th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Employee</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 hidden md:table-cell">Department</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 hidden lg:table-cell">Salary</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Status</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 hidden xl:table-cell">Joined</th>
+                  <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                {filtered.map((emp) => (
-                  <tr key={emp.id}>
-                    <td>
-                      <span style={{
-                        fontFamily: 'monospace', fontSize: 11,
-                        color: 'var(--text-muted)',
-                        background: 'rgba(255,255,255,0.04)',
-                        padding: '3px 8px', borderRadius: 5,
-                        border: '1px solid var(--border)'
-                      }}>#{emp.id}</span>
-                    </td>
-                    <td>
-                      <div className="emp-name-cell">
-                        <div
-                          className={`emp-avatar ${getAvatarColor(emp.name)}`}
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => setSelectedEmployee(emp)}
-                          title="View profile"
-                        >
-                          {getInitials(emp.name)}
-                        </div>
-                        <div>
-                          <div
-                            className="emp-name"
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => setSelectedEmployee(emp)}
-                          >
-                            {emp.name}
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {paginated.map((emp) => {
+                  const fullName = `${emp.firstName} ${emp.lastName}`;
+                  const initials = `${emp.firstName[0]}${emp.lastName[0]}`.toUpperCase();
+                  return (
+                    <tr key={emp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${getGradient(fullName)} text-xs font-bold text-white shadow-sm`}>
+                            {initials}
                           </div>
-                          <div className="emp-id">{emp.email}</div>
+                          <div>
+                            <p className="font-semibold text-slate-900 dark:text-white">{fullName}</p>
+                            <p className="text-xs text-slate-400 dark:text-slate-500">{emp.email}</p>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`dept-badge ${getDeptClass(emp.department)}`}>
-                        {emp.department || 'Unassigned'}
-                      </span>
-                    </td>
-                    <td style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{emp.email}</td>
-                    <td><span className="status-dot">Active</span></td>
-                    <td>
-                      <div className="action-cell">
-                        <button className="btn btn-secondary btn-sm"
-                          onClick={() => setSelectedEmployee(emp)} title="View profile">
-                          👁️
-                        </button>
-                        <button className="btn btn-edit btn-sm"
-                          onClick={() => { onEdit(emp); navigate('/add'); }}>
-                          ✏️ Edit
-                        </button>
-                        <button className="btn btn-danger btn-sm"
-                          onClick={() => onDelete(emp.id)}>
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-5 py-3.5 hidden md:table-cell">
+                        <p className="font-medium text-slate-900 dark:text-white">{emp.department}</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500">{emp.role}</p>
+                      </td>
+                      <td className="px-5 py-3.5 hidden lg:table-cell">
+                        <span className="font-medium text-slate-900 dark:text-white">
+                          ${Number(emp.salary).toLocaleString()}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <Badge variant={getStatusVariant(emp.status)}>{emp.status}</Badge>
+                      </td>
+                      <td className="px-5 py-3.5 hidden xl:table-cell text-slate-500 dark:text-slate-400">
+                        {new Date(emp.joinDate).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => openView(emp)} className="px-2">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => openEdit(emp)} className="px-2">
+                            <Pencil className="h-4 w-4 text-amber-500" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => openDelete(emp)} className="px-2">
+                            <Trash2 className="h-4 w-4 text-rose-500" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
-        ) : (
-          <div className="emp-grid">
-            {filtered.map((emp) => (
-              <div
-                key={emp.id}
-                className="emp-card"
-                onClick={() => setSelectedEmployee(emp)}
+        )}
+
+        {!isLoading && filtered.length > PAGE_SIZE && (
+          <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 px-5 py-3">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Showing <span className="font-semibold">{(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)}</span> of <span className="font-semibold">{filtered.length}</span>
+            </p>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost" size="sm"
+                disabled={safePage === 1}
+                onClick={() => setPage(safePage - 1)}
+                className="px-2"
               >
-                <div className={`emp-avatar lg ${getAvatarColor(emp.name)}`}
-                  style={{ margin: '0 auto 14px' }}>
-                  {getInitials(emp.name)}
-                </div>
-                <div className="emp-card-name">{emp.name}</div>
-                <div className="emp-card-email">{emp.email}</div>
-                <div className="emp-card-dept">
-                  <span className={`dept-badge ${getDeptClass(emp.department)}`}>
-                    {emp.department || 'Unassigned'}
-                  </span>
-                </div>
-                <div className="emp-card-actions" onClick={e => e.stopPropagation()}>
-                  <button className="btn btn-edit btn-sm"
-                    onClick={() => { onEdit(emp); navigate('/add'); }}>
-                    ✏️ Edit
-                  </button>
-                  <button className="btn btn-danger btn-sm"
-                    onClick={() => onDelete(emp.id)}>
-                    🗑️
-                  </button>
-                </div>
-              </div>
-            ))}
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <Button
+                  key={p} size="sm"
+                  variant={p === safePage ? 'primary' : 'ghost'}
+                  onClick={() => setPage(p)}
+                  className="px-3"
+                >
+                  {p}
+                </Button>
+              ))}
+              <Button
+                variant="ghost" size="sm"
+                disabled={safePage === totalPages}
+                onClick={() => setPage(safePage + 1)}
+                className="px-2"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         )}
-      </div>
+      </Card>
 
-      {/* Profile Modal */}
-      {selectedEmployee && (
-        <ProfileModal
-          employee={selectedEmployee}
-          onClose={() => setSelectedEmployee(null)}
-          onEdit={(emp) => { onEdit(emp); navigate('/add'); }}
-          onDelete={(id) => { onDelete(id); setSelectedEmployee(null); }}
-        />
-      )}
+      <EmployeeModal
+        isOpen={modal.type === 'add' || modal.type === 'edit'}
+        employee={modal.type === 'edit' ? modal.employee : null}
+        onClose={closeModal}
+        onSave={handleSave}
+      />
+
+      <EmployeeViewModal
+        isOpen={modal.type === 'view'}
+        employee={modal.employee}
+        onClose={closeModal}
+        onEdit={() => setModal({ type: 'edit', employee: modal.employee })}
+      />
+
+      <ConfirmDialog
+        isOpen={modal.type === 'delete'}
+        title="Delete Employee"
+        message={`Are you sure you want to permanently delete ${modal.employee?.firstName} ${modal.employee?.lastName}? This action cannot be undone.`}
+        confirmLabel="Yes, Delete"
+        onConfirm={handleDelete}
+        onCancel={closeModal}
+      />
     </div>
   );
-}
+};
+
+export default Employees;

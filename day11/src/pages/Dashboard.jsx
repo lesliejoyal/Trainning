@@ -1,123 +1,110 @@
+import { useState, useEffect } from 'react';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import {
-  Users, Briefcase, TrendingUp, Calendar, UserPlus, FileText,
-  Clock, CheckCircle2, AlertCircle, ArrowUpRight, ArrowDownRight,
-  MoreHorizontal, ChevronRight,
+  Users, Calendar, UserPlus,
+  Clock, ArrowUpRight, Award, Flame, Heart, Gift,
+  ArrowRight, Download, Sparkles, Smile, RefreshCw,
+  Trophy
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useEmployees } from '../hooks/useEmployees';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { PageHeader } from '../components/ui/PageHeader';
+import toast from 'react-hot-toast';
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-
-const employeeGrowthData = [
-  { month: 'Jan', employees: 200, hired: 15, resigned: 5 },
-  { month: 'Feb', employees: 210, hired: 18, resigned: 8 },
-  { month: 'Mar', employees: 220, hired: 22, resigned: 12 },
-  { month: 'Apr', employees: 230, hired: 20, resigned: 10 },
-  { month: 'May', employees: 238, hired: 14, resigned: 6 },
-  { month: 'Jun', employees: 241, hired: 10, resigned: 7 },
-  { month: 'Jul', employees: 248, hired: 12, resigned: 5 },
-];
-
-// departmentData is calculated dynamically
-
-// statusData is calculated dynamically
-
-const recentActivities = [
-  { id: 1, type: 'hired',    user: 'Sarah Connor',  role: 'Senior Engineer',   time: '2 hours ago',  icon: UserPlus,    color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/30' },
-  { id: 2, type: 'review',   user: 'Mark Chen',     role: 'Performance Review', time: '4 hours ago',  icon: FileText,    color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30' },
-  { id: 3, type: 'leave',    user: 'Priya Mehta',   role: 'Leave Approved',    time: '6 hours ago',  icon: Calendar,    color: 'text-amber-500 bg-amber-50 dark:bg-amber-900/30' },
-  { id: 4, type: 'alert',    user: 'Jake Wilson',   role: 'Contract Expiring', time: '1 day ago',    icon: AlertCircle, color: 'text-rose-500 bg-rose-50 dark:bg-rose-900/30' },
-  { id: 5, type: 'complete', user: 'Luna Park',     role: 'Onboarding Done',   time: '1 day ago',    icon: CheckCircle2,color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/30' },
-  { id: 6, type: 'hired',    user: 'Tom Richards',  role: 'UX Designer',       time: '2 days ago',   icon: UserPlus,    color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/30' },
-];
-
-const quickActions = [
-  { label: 'Add Employee',    icon: UserPlus,   color: 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/30',  href: '/app/employees' },
-  { label: 'Post Job',        icon: Briefcase,  color: 'bg-violet-600 hover:bg-violet-500 shadow-violet-500/30',  href: '#' },
-  { label: 'Generate Report', icon: FileText,   color: 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/30', href: '#' },
-  { label: 'Schedule Review', icon: Clock,      color: 'bg-amber-500 hover:bg-amber-400 shadow-amber-500/30',     href: '#' },
-];
-
-const upcomingReviews = [
-  { name: 'Alex Turner',  role: 'Backend Engineer', date: 'Jul 10', avatar: 'AT' },
-  { name: 'Mia Rodriguez',role: 'Product Manager',  date: 'Jul 12', avatar: 'MR' },
-  { name: 'Sam Kim',      role: 'Data Analyst',     date: 'Jul 15', avatar: 'SK' },
-  { name: 'Chris Patel',  role: 'DevOps Lead',      date: 'Jul 18', avatar: 'CP' },
-];
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-const StatCard = ({ title, value, icon: Icon, trend, trendUp, sub }) => (
-  <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 hover:shadow-md transition-shadow">
-    <div className="flex items-start justify-between">
-      <div className="space-y-1">
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
-        <p className="text-3xl font-extrabold text-slate-900 dark:text-white">{value}</p>
-        {sub && <p className="text-xs text-slate-400 dark:text-slate-500">{sub}</p>}
-      </div>
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-900/30">
-        <Icon className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-      </div>
-    </div>
-    <div className="mt-4 flex items-center gap-1.5">
-      {trendUp
-        ? <ArrowUpRight className="h-4 w-4 text-emerald-500" />
-        : <ArrowDownRight className="h-4 w-4 text-rose-500" />
-      }
-      <span className={`text-sm font-semibold ${trendUp ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-        {trend}
-      </span>
-      <span className="text-sm text-slate-400 dark:text-slate-500">vs last month</span>
-    </div>
-    {/* Decorative */}
-    <div className="pointer-events-none absolute -right-4 -top-4 h-24 w-24 rounded-full bg-indigo-50 opacity-60 dark:bg-indigo-900/20" />
-  </div>
-);
-
-const SectionHeader = ({ title, action }) => (
-  <div className="mb-4 flex items-center justify-between">
-    <h2 className="text-base font-semibold text-slate-900 dark:text-white">{title}</h2>
-    {action && (
-      <button className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 transition-colors">
-        {action} <ChevronRight className="h-3.5 w-3.5" />
-      </button>
-    )}
-  </div>
-);
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-700 dark:bg-slate-800 text-xs">
-      <p className="mb-1 font-semibold text-slate-700 dark:text-slate-200">{label}</p>
-      {payload.map((p) => (
-        <p key={p.name} style={{ color: p.color }} className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full" style={{ background: p.color }} />
-          {p.name}: <strong>{p.value}</strong>
-        </p>
-      ))}
-    </div>
-  );
+// ─── AI-Style Insights Generator ───
+const getAIInsights = (employees, activeCount, onLeaveCount) => {
+  const ratio = activeCount / (employees.length || 1);
+  if (ratio < 0.8) {
+    return {
+      status: 'warning',
+      text: 'Workforce active rate is below 80%. Consider adjusting shift allocations and reviewing leave queue density.',
+      action: 'Optimize Schedules'
+    };
+  }
+  if (onLeaveCount > 2) {
+    return {
+      status: 'info',
+      text: 'Higher volume of concurrent leaves this week. Cross-team coverage is recommended for product milestones.',
+      action: 'View Leave calendar'
+    };
+  }
+  return {
+    status: 'success',
+    text: 'All workforce metrics are healthy. High task delivery rates this week with zero critical contract expirations.',
+    action: 'Send Team Kudos'
+  };
 };
 
-// ─── Main Dashboard ───────────────────────────────────────────────────────────
+const INITIAL_WIDGETS = ['stats', 'growth', 'departments', 'insights', 'engagement', 'collaboration', 'activities', 'reviews'];
 
 const Dashboard = () => {
   const { employees } = useEmployees();
+  const [widgets, setWidgets] = useState(() => {
+    const saved = localStorage.getItem('ems_admin_widgets');
+    return saved ? JSON.parse(saved) : INITIAL_WIDGETS;
+  });
+  
+  // Undo support for removing widgets
+  const [removedWidgets, setRemovedWidgets] = useState([]);
 
+  useEffect(() => {
+    localStorage.setItem('ems_admin_widgets', JSON.stringify(widgets));
+  }, [widgets]);
+
+  const removeWidget = (name) => {
+    setWidgets(prev => prev.filter(w => w !== name));
+    setRemovedWidgets(prev => [...prev, name]);
+    toast((t) => (
+      <span className="flex items-center gap-2 text-xs">
+        Widget removed
+        <button 
+          onClick={() => {
+            setWidgets(curr => [...curr, name]);
+            setRemovedWidgets(curr => curr.filter(w => w !== name));
+            toast.dismiss(t.id);
+          }}
+          className="font-bold underline text-indigo-500 ml-2"
+        >
+          Undo
+        </button>
+      </span>
+    ));
+  };
+
+  const resetWidgets = () => {
+    setWidgets(INITIAL_WIDGETS);
+    setRemovedWidgets([]);
+    toast.success('Dashboard widgets reset to default layout');
+  };
+
+  // Move widget up or down in list
+  const moveWidget = (index, direction) => {
+    const nextWidgets = [...widgets];
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= nextWidgets.length) return;
+    const temp = nextWidgets[index];
+    nextWidgets[index] = nextWidgets[targetIndex];
+    nextWidgets[targetIndex] = temp;
+    setWidgets(nextWidgets);
+  };
+
+  // Calculations
   const totalEmployees = employees.length;
   const activeCount = employees.filter((e) => e.status === 'Active').length;
   const onLeaveCount = employees.filter((e) => e.status === 'On Leave').length;
   const remoteCount = employees.filter((e) => e.status === 'Remote').length;
 
+  const workforceHealth = totalEmployees > 0 ? Math.round((activeCount / totalEmployees) * 100) : 95;
+  const avgProductivity = 91; // Dummy score calculation based on performance review data
+
+  // Recharts calculations
   const statusData = [
-    { name: 'Active', value: activeCount, color: '#6366f1' },
+    { name: 'Active', value: activeCount, color: 'var(--color-primary, #6366f1)' },
     { name: 'On Leave', value: onLeaveCount, color: '#f59e0b' },
     { name: 'Remote', value: remoteCount, color: '#10b981' },
   ];
@@ -131,176 +118,327 @@ const Dashboard = () => {
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count);
 
-  const stats = [
-    { title: 'Total Employees', value: totalEmployees.toString(),  icon: Users,      trend: '+12%',  trendUp: true,  sub: '20 new this quarter' },
-    { title: 'Open Positions',  value: '14',   icon: Briefcase,  trend: '+2',    trendUp: true,  sub: '5 interviewing now' },
-    { title: 'Avg Performance', value: '92%',  icon: TrendingUp, trend: '+4%',   trendUp: true,  sub: 'Based on Q2 reviews' },
-    { title: 'On Leave Today',  value: onLeaveCount.toString(),    icon: Calendar,   trend: '-2',    trendUp: false, sub: '3 return tomorrow' },
+  const employeeGrowthData = [
+    { month: 'Jan', employees: Math.max(10, totalEmployees - 15), prediction: Math.max(10, totalEmployees - 15) },
+    { month: 'Feb', employees: Math.max(10, totalEmployees - 10), prediction: Math.max(10, totalEmployees - 10) },
+    { month: 'Mar', employees: Math.max(10, totalEmployees - 5), prediction: Math.max(10, totalEmployees - 5) },
+    { month: 'Apr', employees: totalEmployees, prediction: totalEmployees },
+    { month: 'May', prediction: totalEmployees + 3 },
+    { month: 'Jun', prediction: totalEmployees + 7 },
   ];
 
-  return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+  // AI-Insights
+  const aiInsight = getAIInsights(employees, activeCount, onLeaveCount);
 
-      {/* ── Header ── */}
+  // Widget Header Action Buttons
+  const WidgetHeader = ({ title, name, index }) => (
+    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-4">
+      <h3 className="text-sm font-semibold text-slate-850 dark:text-slate-200 flex items-center gap-2">
+        <Sparkles className="h-4 w-4 text-primary animate-pulse" /> {title}
+      </h3>
+      <div className="flex items-center gap-1 opacity-40 hover:opacity-100 transition-opacity">
+        <button onClick={() => moveWidget(index, -1)} disabled={index === 0} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-xs disabled:opacity-30">▲</button>
+        <button onClick={() => moveWidget(index, 1)} disabled={index === widgets.length - 1} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-xs disabled:opacity-30">▼</button>
+        <button onClick={() => removeWidget(name)} className="p-1 hover:bg-rose-100 dark:hover:bg-rose-950 text-rose-500 rounded text-xs" title="Hide widget">×</button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      
+      {/* Page Header */}
       <PageHeader
-        title="Dashboard"
-        description={new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })}
+        title="Smart Dashboard"
+        description="Dynamic metrics and real-time workforce health intelligence"
       >
-        <Button variant="secondary">
-          <MoreHorizontal className="mr-2 h-4 w-4" /> Export Report
-        </Button>
+        <div className="flex items-center gap-2">
+          {removedWidgets.length > 0 && (
+            <Button variant="secondary" onClick={resetWidgets} size="sm">
+              <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Restore Widgets
+            </Button>
+          )}
+          <Button variant="primary" size="sm" onClick={() => toast.success('Dashboard report generated!')}>
+            <Download className="mr-1.5 h-3.5 w-3.5" /> Export PDF
+          </Button>
+        </div>
       </PageHeader>
 
-      {/* ── Stat Cards ── */}
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((s) => <StatCard key={s.title} {...s} />)}
-      </div>
-
-      {/* ── Quick Actions ── */}
-      <div>
-        <SectionHeader title="Quick Actions" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {quickActions.map(({ label, icon: Icon, color, href }) => (
-            <a
-              key={label}
-              href={href}
-              className={`flex flex-col items-center justify-center gap-2 rounded-2xl px-4 py-5 text-white shadow-lg transition-all hover:scale-[1.03] hover:shadow-xl ${color}`}
-            >
-              <Icon className="h-7 w-7" />
-              <span className="text-xs font-semibold text-center leading-tight">{label}</span>
-            </a>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Charts Row 1: Area + Pie ── */}
-      <div className="grid gap-5 lg:grid-cols-3">
-        {/* Employee Growth Area Chart */}
-        <Card className="lg:col-span-2 p-6">
-          <SectionHeader title="Employee Growth" action="View details" />
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={employeeGrowthData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorEmp" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#6366f1" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="colorHired" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#10b981" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:[&>line]:stroke-slate-700" />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', paddingTop: '12px' }} />
-              <Area type="monotone" dataKey="employees" name="Total" stroke="#6366f1" strokeWidth={2.5} fill="url(#colorEmp)" dot={false} activeDot={{ r: 5 }} />
-              <Area type="monotone" dataKey="hired"     name="Hired"  stroke="#10b981" strokeWidth={2} fill="url(#colorHired)" dot={false} activeDot={{ r: 4 }} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </Card>
-
-        {/* Status Pie Chart */}
-        <Card className="p-6">
-          <SectionHeader title="Employee Status" />
-          <ResponsiveContainer width="100%" height={180}>
-            <PieChart>
-              <Pie
-                data={statusData}
-                cx="50%"
-                cy="50%"
-                innerRadius={55}
-                outerRadius={80}
-                paddingAngle={4}
-                dataKey="value"
-              >
-                {statusData.map((entry) => (
-                  <Cell key={entry.name} fill={entry.color} stroke="transparent" />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="mt-2 space-y-2">
-            {statusData.map((s) => (
-              <div key={s.name} className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: s.color }} />
-                  <span className="text-slate-600 dark:text-slate-400">{s.name}</span>
-                </div>
-                <span className="font-semibold text-slate-900 dark:text-white">{s.value}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      {/* ── Charts Row 2: Bar Chart ── */}
-      <Card className="p-6">
-        <SectionHeader title="Headcount by Department" action="Full report" />
-        <ResponsiveContainer width="100%" height={220}>
-          <BarChart data={departmentData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }} barSize={32}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} className="dark:[&>line]:stroke-slate-700" />
-            <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: '#6366f110' }} />
-            <Bar dataKey="count" name="Employees" fill="#6366f1" radius={[6, 6, 0, 0]}>
-              {departmentData.map((_, i) => (
-                <Cell key={i} fill={i % 2 === 0 ? '#6366f1' : '#818cf8'} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </Card>
-
-      {/* ── Bottom Row: Activity + Reviews ── */}
-      <div className="grid gap-5 lg:grid-cols-2">
-
-        {/* Recent Activities */}
-        <Card className="p-6">
-          <SectionHeader title="Recent Activities" action="View all" />
-          <div className="space-y-4">
-            {recentActivities.map((activity) => {
-              const Icon = activity.icon;
-              return (
-                <div key={activity.id} className="flex items-start gap-3">
-                  <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${activity.color}`}>
-                    <Icon className="h-4 w-4" />
+      <div className="flex flex-col gap-6">
+        
+        {widgets.map((widget, idx) => {
+          if (widget === 'stats') {
+            return (
+              <motion.div key={widget} layout className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Card className="p-5 flex items-center justify-between border-l-4 border-l-primary">
+                  <div>
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Employees</span>
+                    <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{totalEmployees}</h3>
+                    <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1"><ArrowUpRight className="h-3 w-3 text-emerald-500" /> +5% vs Q1</p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{activity.user}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{activity.role}</p>
+                  <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                    <Users className="h-5 w-5" />
                   </div>
-                  <span className="shrink-0 text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap">{activity.time}</span>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
+                </Card>
 
-        {/* Upcoming Reviews */}
-        <Card className="p-6">
-          <SectionHeader title="Upcoming Reviews" action="View schedule" />
-          <div className="space-y-3">
-            {upcomingReviews.map((r) => (
-              <div key={r.name} className="flex items-center gap-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-3 hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-sm font-bold text-indigo-600 dark:text-indigo-300">
-                  {r.avatar}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{r.name}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{r.role}</p>
-                </div>
-                <div className="shrink-0 text-right">
-                  <span className="inline-flex items-center rounded-lg bg-indigo-50 dark:bg-indigo-900/30 px-2.5 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300">
-                    {r.date}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
+                <Card className="p-5 flex items-center justify-between border-l-4 border-l-emerald-500">
+                  <div>
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Workforce Health</span>
+                    <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{workforceHealth}%</h3>
+                    <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1"><Smile className="h-3 w-3 text-emerald-500" /> Optimal state</p>
+                  </div>
+                  <div className="h-11 w-11 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                    <Heart className="h-5 w-5" />
+                  </div>
+                </Card>
+
+                <Card className="p-5 flex items-center justify-between border-l-4 border-l-indigo-550">
+                  <div>
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Productivity Score</span>
+                    <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{avgProductivity}%</h3>
+                    <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1"><Flame className="h-3 w-3 text-amber-500" /> High Activity</p>
+                  </div>
+                  <div className="h-11 w-11 rounded-xl bg-indigo-500/10 text-indigo-505 flex items-center justify-center">
+                    <Flame className="h-5 w-5 text-indigo-500" />
+                  </div>
+                </Card>
+
+                <Card className="p-5 flex items-center justify-between border-l-4 border-l-amber-500">
+                  <div>
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">On Leave Today</span>
+                    <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{onLeaveCount}</h3>
+                    <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1"><Clock className="h-3 w-3" /> Overlapping logs</p>
+                  </div>
+                  <div className="h-11 w-11 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                    <Calendar className="h-5 w-5" />
+                  </div>
+                </Card>
+              </motion.div>
+            );
+          }
+
+          if (widget === 'insights') {
+            return (
+              <motion.div key={widget} layout>
+                <Card className="p-5 bg-gradient-to-r from-primary-light/35 to-transparent dark:from-primary-dark/20 border border-primary/20">
+                  <WidgetHeader title="AI Workforce Insights" name="insights" index={idx} />
+                  <div className="flex items-start gap-4">
+                    <div className="mt-1 h-9 w-9 shrink-0 flex items-center justify-center rounded-xl bg-primary text-white shadow-lg">
+                      <Sparkles className="h-4.5 w-4.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">Active Recommendations</h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                        {aiInsight.text}
+                      </p>
+                      <button 
+                        onClick={() => toast.success(`Action initiated: ${aiInsight.action}`)}
+                        className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+                      >
+                        {aiInsight.action} <ArrowRight className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            );
+          }
+
+          if (widget === 'growth') {
+            return (
+              <motion.div key={widget} layout className="grid gap-5 lg:grid-cols-3">
+                <Card className="lg:col-span-2 p-5">
+                  <WidgetHeader title="Employee Growth & Prediction" name="growth" index={idx} />
+                  <ResponsiveContainer width="100%" height={240}>
+                    <AreaChart data={employeeGrowthData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="growthCol" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="var(--color-primary, #6366f1)" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="var(--color-primary, #6366f1)" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:[&>line]:stroke-slate-700" />
+                      <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <Tooltip />
+                      <Legend wrapperStyle={{ fontSize: '11px' }} />
+                      <Area type="monotone" dataKey="employees" name="Current Staff" stroke="var(--color-primary, #6366f1)" strokeWidth={2.5} fill="url(#growthCol)" />
+                      <Area type="monotone" dataKey="prediction" name="Predictive Trend" stroke="#cbd5e1" strokeWidth={1.5} strokeDasharray="5 5" fill="none" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </Card>
+
+                {/* Status breakdown circular */}
+                <Card className="p-5">
+                  <WidgetHeader title="Workforce Composition" name="growth" index={idx} />
+                  <ResponsiveContainer width="100%" height={160}>
+                    <PieChart>
+                      <Pie data={statusData} cx="50%" cy="50%" innerRadius={45} outerRadius={65} paddingAngle={4} dataKey="value">
+                        {statusData.map((entry) => (
+                          <Cell key={entry.name} fill={entry.color} stroke="transparent" />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="mt-2 space-y-2">
+                    {statusData.map((s) => (
+                      <div key={s.name} className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
+                          <span className="text-slate-650 dark:text-slate-400">{s.name}</span>
+                        </div>
+                        <span className="font-semibold text-slate-900 dark:text-white">{s.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </motion.div>
+            );
+          }
+
+          if (widget === 'departments') {
+            return (
+              <motion.div key={widget} layout>
+                <Card className="p-5">
+                  <WidgetHeader title="Headcount comparison by Department" name="departments" index={idx} />
+                  <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={departmentData} barSize={28}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} className="dark:[&>line]:stroke-slate-700" />
+                      <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <Tooltip cursor={{ fill: '#e2e8f050' }} />
+                      <Bar dataKey="count" fill="var(--color-primary, #6366f1)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Card>
+              </motion.div>
+            );
+          }
+
+          if (widget === 'engagement') {
+            return (
+              <motion.div key={widget} layout className="grid gap-5 md:grid-cols-3">
+                {/* Employee of the month */}
+                <Card className="p-5 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-amber-500 to-orange-600 text-white">
+                  <div className="absolute right-0 bottom-0 opacity-10">
+                    <Award className="h-40 w-40" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs uppercase font-bold tracking-widest text-amber-100 flex items-center gap-1.5">
+                      <Trophy className="h-4 w-4" /> Employee of the Month
+                    </h4>
+                    <div className="mt-4 flex items-center gap-3">
+                      <div className="h-14 w-14 rounded-full bg-white/20 border-2 border-white flex items-center justify-center font-extrabold text-lg text-white">
+                        KK
+                      </div>
+                      <div>
+                        <p className="font-extrabold text-base">Kavitha Kanimozhi</p>
+                        <p className="text-xs text-amber-100">Senior Engineer · Engineering</p>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-amber-100/90 mt-4 leading-relaxed italic">
+                    "Outstanding execution of the platform UI upgrades and exemplary teamwork behavior."
+                  </p>
+                </Card>
+
+                {/* Birthday reminders card */}
+                <Card className="p-5 flex flex-col justify-between">
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <Gift className="h-4 w-4 text-rose-500" /> Upcoming Birthdays
+                    </h4>
+                    <div className="mt-3 space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-semibold text-slate-800 dark:text-white">Arivoli Subramanian</span>
+                        <span className="text-slate-400">July 15 (In 2 days)</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs border-t border-slate-100 dark:border-slate-800 pt-2">
+                        <span className="font-semibold text-slate-800 dark:text-white">Meenakshi Nandhini</span>
+                        <span className="text-slate-400">July 22</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="w-full text-xs mt-3" onClick={() => toast.success('Birthday greeting schedule enabled!')}>
+                    View Calendar
+                  </Button>
+                </Card>
+
+                {/* Welcome board for new employees */}
+                <Card className="p-5 flex flex-col justify-between">
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <UserPlus className="h-4 w-4 text-emerald-500" /> Welcome Aboard!
+                    </h4>
+                    <div className="mt-4 flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center font-bold text-emerald-600 text-sm">
+                        AS
+                      </div>
+                      <div>
+                        <p className="font-bold text-xs">Arulozhi Senthil</p>
+                        <p className="text-[10px] text-slate-400">Joined July 10 · DevOps</p>
+                      </div>
+                    </div>
+                  </div>
+                  <Button variant="secondary" size="sm" className="w-full text-xs mt-3" onClick={() => toast.success('Sent Slack invite link!')}>
+                    Send Welcome Note
+                  </Button>
+                </Card>
+              </motion.div>
+            );
+          }
+
+          if (widget === 'collaboration') {
+            return (
+              <motion.div key={widget} layout className="grid gap-5 md:grid-cols-2">
+                {/* News & Announcements Feed */}
+                <Card className="p-5">
+                  <WidgetHeader title="Company Announcements" name="collaboration" index={idx} />
+                  <div className="space-y-3">
+                    <div className="rounded-xl border border-slate-100 dark:border-slate-800 p-3 bg-slate-50/50 dark:bg-slate-800/10">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-[9px] font-bold text-primary uppercase bg-primary-light px-2 py-0.5 rounded">Corporate</span>
+                        <span className="text-[10px] text-slate-400">Today</span>
+                      </div>
+                      <h5 className="font-bold text-xs text-slate-800 dark:text-white">Annual Town Hall Q3</h5>
+                      <p className="text-[10px] text-slate-500 mt-0.5">Scheduled for next Tuesday at 3:00 PM IST. Interactive polls will be open.</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-100 dark:border-slate-800 p-3">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-[9px] font-bold text-emerald-600 uppercase bg-emerald-100 px-2 py-0.5 rounded">Security</span>
+                        <span className="text-[10px] text-slate-400">2 days ago</span>
+                      </div>
+                      <h5 className="font-bold text-xs text-slate-800 dark:text-white">Mandatory SSO Upgrade</h5>
+                      <p className="text-[10px] text-slate-500 mt-0.5">All corporate logins will transit to single sign-on before Friday.</p>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Polls & Surveys Widget */}
+                <Card className="p-5 flex flex-col justify-between">
+                  <WidgetHeader title="Active Quick Survey" name="collaboration" index={idx} />
+                  <div>
+                    <h5 className="font-semibold text-xs text-slate-800 dark:text-white">Where should we host the Q3 team outing?</h5>
+                    <div className="mt-3 space-y-2">
+                      <button onClick={() => toast.success('Voted for Hill Station Resort')} className="w-full flex items-center justify-between text-xs border border-slate-200 dark:border-slate-700 hover:border-primary px-3 py-2 rounded-xl text-left transition-colors">
+                        <span>Resort in Ooty / Kodaikanal</span>
+                        <span className="font-semibold text-slate-400">42%</span>
+                      </button>
+                      <button onClick={() => toast.success('Voted for Beachside Villa')} className="w-full flex items-center justify-between text-xs border border-slate-200 dark:border-slate-700 hover:border-primary px-3 py-2 rounded-xl text-left transition-colors">
+                        <span>Beach Villa in ECR Chennai</span>
+                        <span className="font-semibold text-slate-400">58%</span>
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-[9px] text-slate-400 text-center mt-3">Votes are anonymous. Ends July 20.</p>
+                </Card>
+              </motion.div>
+            );
+          }
+
+          return null;
+        })}
 
       </div>
     </div>

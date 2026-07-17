@@ -1,6 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'ems_payroll';
+const SEED_VERSION = 'v4_tamil_names';
+const SEED_VERSION_KEY = 'ems_payroll_version';
+
+// Clear stale data if seed version changed
+if (localStorage.getItem(SEED_VERSION_KEY) !== SEED_VERSION) {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem('ems_user');
+  localStorage.setItem(SEED_VERSION_KEY, SEED_VERSION);
+}
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
 const currentMonth = MONTHS[new Date().getMonth()] ?? 'July';
@@ -47,13 +56,13 @@ const buildRecord = (emp, month, year, status = 'Paid') => {
 };
 
 const SEED_EMPLOYEES = [
-  { id: '1', name: 'Jane Cooper',      department: 'Engineering', role: 'Senior Engineer',     salary: 95000  },
-  { id: '2', name: 'Cody Fisher',      department: 'Product',     role: 'Product Manager',     salary: 105000 },
-  { id: '3', name: 'Esther Howard',    department: 'Design',      role: 'UX Designer',         salary: 80000  },
-  { id: '4', name: 'Jenny Wilson',     department: 'HR',          role: 'HR Manager',          salary: 75000  },
-  { id: '6', name: 'Wade Warren',      department: 'Engineering', role: 'Frontend Developer',  salary: 85000  },
-  { id: '7', name: 'Floyd Miles',      department: 'Finance',     role: 'Financial Analyst',   salary: 88000  },
-  { id: '8', name: 'Ronald Richards',  department: 'Engineering', role: 'DevOps Engineer',     salary: 98000  },
+  { id: '1', name: 'Kavitha Kanimozhi',    department: 'Engineering', role: 'Senior Engineer',     salary: 75000 },
+  { id: '2', name: 'Arivoli Subramanian',  department: 'Product',     role: 'Product Manager',     salary: 85000 },
+  { id: '3', name: 'Oviya Thamarai',       department: 'Design',      role: 'UX Designer',         salary: 65000 },
+  { id: '4', name: 'Meenakshi Nandhini',   department: 'HR',          role: 'HR Manager',          salary: 60000 },
+  { id: '6', name: 'Elango Murugan',       department: 'Engineering', role: 'Frontend Developer',  salary: 68000 },
+  { id: '7', name: 'Vikram Ramasamy',      department: 'Finance',     role: 'Financial Analyst',   salary: 70000 },
+  { id: '8', name: 'Arulozhi Senthil',     department: 'Engineering', role: 'DevOps Engineer',     salary: 78000 },
 ];
 
 const SEED = [

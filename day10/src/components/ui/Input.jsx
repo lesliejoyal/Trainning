@@ -9,7 +9,7 @@ export const Input = forwardRef(({ className = '', ...props }, ref) => {
         disabled:cursor-not-allowed disabled:opacity-50
         ${className}`}
       ref={ref}
-      {...props}
+       sas {...props}
     />
   );
 });

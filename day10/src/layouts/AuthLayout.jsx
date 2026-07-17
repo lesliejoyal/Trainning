@@ -22,6 +22,6 @@ export function AuthLayout() {
           <Outlet />
         </div>
       </div>
-    </div>
+    </div>  
   );
 }

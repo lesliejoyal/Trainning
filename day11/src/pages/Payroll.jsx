@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import {
-  Search, Download, Eye, CheckCircle2, Clock, X,
+  Search, Eye, CheckCircle2, Clock, X,
   Printer, DollarSign, TrendingUp, CreditCard,
   ChevronLeft, ChevronRight, Briefcase, Loader2
 } from 'lucide-react';
@@ -31,7 +31,7 @@ const avatarGradients = [
 ];
 const getGradient = (name = '') => avatarGradients[name.charCodeAt(0) % avatarGradients.length];
 
-const fmt = (n) => `$${Number(n).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+const fmt = (n) => `₹${Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 
 // ─── Payslip Modal ────────────────────────────────────────────────────────────
 const PayslipModal = ({ record, onClose }) => {
@@ -105,10 +105,10 @@ const PayslipModal = ({ record, onClose }) => {
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
                   <Briefcase className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-xl font-extrabold text-indigo-600 dark:text-indigo-400">EMS Portal</span>
+                <span className="text-xl font-extrabold text-indigo-600 dark:text-indigo-400">Thamizha Thamizhi</span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">123 Business Park, Tech City, CA 94105</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">payroll@ems.com · +1 (555) 000-0000</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">123 Industrial Park, Chennai, Tamil Nadu – 600001</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">payroll@thamizha.com · +91 44-0000-0000</p>
             </div>
             <div className="text-right">
               <p className="text-sm font-bold text-slate-900 dark:text-white">PAYSLIP</p>
@@ -205,7 +205,7 @@ const PayslipModal = ({ record, onClose }) => {
           </div>
 
           <p className="footer-note text-center text-xs text-slate-400 dark:text-slate-600 pt-2">
-            This is a system-generated payslip and does not require a signature. For queries, contact payroll@ems.com
+            This is a system-generated payslip and does not require a signature. For queries, contact payroll@thamizha.com
           </p>
         </div>
       </div>
@@ -248,6 +248,19 @@ const GenerateModal = ({ isOpen, onClose, onGenerate }) => {
   );
 };
 
+const StatCard = ({ icon: Icon, label, value, sub, color }) => (
+  <Card className={`flex items-center gap-4 p-5 ${color} shadow-sm border-none`}>
+    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/60 dark:bg-black/20">
+      <Icon className="h-5 w-5" />
+    </div>
+    <div className="min-w-0">
+      <p className="text-xs font-medium opacity-70">{label}</p>
+      <p className="text-xl font-extrabold truncate">{value}</p>
+      {sub && <p className="text-xs opacity-60">{sub}</p>}
+    </div>
+  </Card>
+);
+
 // ─── Payroll Page ─────────────────────────────────────────────────────────────
 const Payroll = () => {
   const { records, updateStatus, generatePayslips } = usePayroll();
@@ -289,19 +302,6 @@ const Payroll = () => {
   const safePage   = Math.min(page, totalPages);
   const paginated  = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const StatCard = ({ icon: Icon, label, value, sub, color }) => (
-    <Card className={`flex items-center gap-4 p-5 ${color} shadow-sm border-none`}>
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/60 dark:bg-black/20">
-        <Icon className="h-5 w-5" />
-      </div>
-      <div className="min-w-0">
-        <p className="text-xs font-medium opacity-70">{label}</p>
-        <p className="text-xl font-extrabold truncate">{value}</p>
-        {sub && <p className="text-xs opacity-60">{sub}</p>}
-      </div>
-    </Card>
-  );
-
   const handleUpdateStatus = (id, newStatus) => {
     updateStatus(id, newStatus);
     if (newStatus === 'Paid') toast.success('Payslip marked as paid');
@@ -330,8 +330,8 @@ const Payroll = () => {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={DollarSign}  label="Total Payroll"  value={`$${Math.round(totalPayroll).toLocaleString()}`} sub={`${monthFilter} 2026`} color="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300" />
-        <StatCard icon={TrendingUp}  label="Avg Basic Salary" value={`$${avgSalary.toLocaleString()}`} sub="Per employee" color="bg-violet-50 text-violet-700 dark:bg-violet-900/20 dark:text-violet-300" />
+        <StatCard icon={DollarSign}  label="Total Payroll"  value={`₹${Math.round(totalPayroll).toLocaleString('en-IN')}`} sub={`${monthFilter} 2026`} color="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300" />
+        <StatCard icon={TrendingUp}  label="Avg Basic Salary" value={`₹${avgSalary.toLocaleString('en-IN')}`} sub="Per employee" color="bg-violet-50 text-violet-700 dark:bg-violet-900/20 dark:text-violet-300" />
         <StatCard icon={CheckCircle2}label="Paid"             value={paidCount}  sub="Payslips" color="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300" />
         <StatCard icon={Clock}       label="Pending"          value={pendingCount} sub="Awaiting payment" color="bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300" />
       </div>

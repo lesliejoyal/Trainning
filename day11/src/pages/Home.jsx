@@ -46,7 +46,7 @@ const Home = () => {
                 <Briefcase className="h-5 w-5 text-white" />
               </div>
               <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                EMS Portal
+              தமிழா தமிழி
               </span>
             </div>
             <div className="flex items-center gap-4">
@@ -94,7 +94,7 @@ const Home = () => {
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400">
-            EMS Portal is the all-in-one employment management solution — track employees,
+            Thamizha Thamizhi is the all-in-one employment management solution — track employees,
             analyze performance, and streamline your HR operations, all in one beautiful interface.
           </p>
 
@@ -182,7 +182,7 @@ const Home = () => {
               Ready to transform your HR operations?
             </h2>
             <p className="relative mt-4 text-lg text-indigo-200">
-              Join hundreds of companies already using EMS Portal.
+              Join hundreds of companies already using Thamizha Thamizhi.
             </p>
             <Link
               to="/login"
@@ -199,7 +199,7 @@ const Home = () => {
         <div className="mx-auto max-w-7xl px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-2">
             <Briefcase className="h-4 w-4 text-indigo-500" />
-            <span>&copy; {new Date().getFullYear()} EMS Portal. All rights reserved.</span>
+            <span>&copy; {new Date().getFullYear()} Thamizha Thamizhi. All rights reserved.</span>
           </div>
           <div className="flex gap-4">
             <a href="#" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacy</a>

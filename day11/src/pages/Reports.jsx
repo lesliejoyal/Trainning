@@ -348,10 +348,10 @@ const LeaveReports = () => (
 const PayrollReports = () => (
   <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <SummaryCard icon={DollarSign}  label="Total Payroll (Jul)"  value="$1.92M" delta="+2.1%"  deltaUp={true}  color="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300" />
-      <SummaryCard icon={TrendingUp}  label="Avg Net Salary"       value="$7,742" delta="+$320"  deltaUp={true}  color="bg-violet-50 text-violet-700 dark:bg-violet-900/20 dark:text-violet-300" />
-      <SummaryCard icon={BarChart2}   label="Total Deductions"      value="$480K"  delta="+2.1%"  deltaUp={false} color="bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-300" />
-      <SummaryCard icon={Activity}    label="YTD Payroll"          value="$12.5M" delta="+8.4%"  deltaUp={true}  color="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300" />
+      <SummaryCard icon={DollarSign}  label="Total Payroll (Jul)"  value="₹19.2L" delta="+2.1%"  deltaUp={true}  color="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300" />
+      <SummaryCard icon={TrendingUp}  label="Avg Net Salary"       value="₹77,742" delta="+₹3,200"  deltaUp={true}  color="bg-violet-50 text-violet-700 dark:bg-violet-900/20 dark:text-violet-300" />
+      <SummaryCard icon={BarChart2}   label="Total Deductions"      value="₹4.8L"  delta="+2.1%"  deltaUp={false} color="bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-300" />
+      <SummaryCard icon={Activity}    label="YTD Payroll"          value="₹1.25C" delta="+8.4%"  deltaUp={true}  color="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300" />
     </div>
 
     <div className="grid gap-5 lg:grid-cols-2">

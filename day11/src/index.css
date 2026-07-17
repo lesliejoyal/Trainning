@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
-  --color-primary: #4f46e5;
-  --color-primary-hover: #4338ca;
+  --color-primary: var(--primary-500, #4f46e5);
+  --color-primary-hover: var(--primary-600, #4338ca);
+  --color-primary-light: var(--primary-100, #e0e7ff);
+  --color-primary-dark: var(--primary-950, #1e1b4b);
   --color-bg-dark: #0f172a;
   --color-bg-panel-dark: #1e293b;
   --color-text-dark: #f8fafc;
@@ -27,4 +31,75 @@
 .animate-in { animation-duration: 200ms; animation-fill-mode: both; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
 .fade-in { animation-name: fade-in; }
 .zoom-in-95 { animation-name: zoom-in; }
+
+/* Dynamic Layout Density */
+html[data-density="compact"] main {
+  padding: 0.75rem !important;
+}
+html[data-density="compact"] .grid {
+  gap: 0.75rem !important;
+}
+html[data-density="compact"] .p-6 {
+  padding: 1rem !important;
+}
+html[data-density="compact"] .p-5 {
+  padding: 0.75rem !important;
+}
+html[data-density="compact"] .p-4 {
+  padding: 0.5rem !important;
+}
+html[data-density="compact"] .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0.75rem !important;
+}
+html[data-density="compact"] .space-y-8 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1rem !important;
+}
+
+html[data-density="spacious"] main {
+  padding: 2.5rem !important;
+}
+html[data-density="spacious"] .grid {
+  gap: 2rem !important;
+}
+html[data-density="spacious"] .p-6 {
+  padding: 2rem !important;
+}
+html[data-density="spacious"] .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 2rem !important;
+}
+
+/* Glassmorphism classes */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass-panel {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Custom Scrollbar for sleek SaaS feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 

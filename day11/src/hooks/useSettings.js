@@ -7,9 +7,9 @@ const DEFAULT_SETTINGS = {
   accent: 'indigo',
   language: 'en',
   density: 'comfortable',
-  timezone: 'America/Los_Angeles',
-  currency: 'USD',
-  dateFormat: 'MM/DD/YYYY',
+  timezone: 'Asia/Kolkata',
+  currency: 'INR',
+  dateFormat: 'DD/MM/YYYY',
   // Notifications
   notifEmailLeave:    true,
   notifEmailPayroll:  true,
@@ -27,11 +27,20 @@ const DEFAULT_SETTINGS = {
   sessionTimeout:  '30',
   dataRetention:   '12',
   // Company
-  companyName:  'Acme Corporation',
-  companyEmail: 'hr@acme.com',
-  companyPhone: '+1 555-0000',
-  companyAddr:  '123 Business Park, San Francisco, CA 94105',
-  companyWeb:   'https://acme.com',
+  companyName:  'Thamizha Thamizhi',
+  companyEmail: 'hr@thamizha.com',
+  companyPhone: '+91 44-2345-6789',
+  companyAddr:  '42 Anna Salai, Chennai, Tamil Nadu 600002',
+  companyWeb:   'https://thamizha.com',
+};
+
+const ACCENT_COLORS = {
+  indigo: { 500: '#4f46e5', 600: '#4338ca', 100: '#e0e7ff', 950: '#1e1b4b' },
+  violet: { 500: '#8b5cf6', 600: '#7c3aed', 100: '#ede9fe', 950: '#2e1065' },
+  emerald: { 500: '#10b981', 600: '#059669', 100: '#d1fae5', 950: '#022c22' },
+  rose: { 500: '#f43f5e', 600: '#e11d48', 100: '#ffe4e6', 950: '#4c0519' },
+  amber: { 500: '#f59e0b', 600: '#d97706', 100: '#fef3c7', 950: '#451a03' },
+  sky: { 500: '#0ea5e9', 600: '#0284c7', 100: '#e0f2fe', 950: '#082f49' }
 };
 
 const applyTheme = (theme) => {
@@ -54,6 +63,17 @@ export const useSettings = () => {
   useEffect(() => {
     applyTheme(settings.theme);
 
+    // Apply accent colors
+    const colors = ACCENT_COLORS[settings.accent] || ACCENT_COLORS.indigo;
+    const root = document.documentElement;
+    root.style.setProperty('--primary-500', colors[500]);
+    root.style.setProperty('--primary-600', colors[600]);
+    root.style.setProperty('--primary-100', colors[100]);
+    root.style.setProperty('--primary-950', colors[950]);
+
+    // Apply density attribute
+    root.setAttribute('data-density', settings.density || 'comfortable');
+
     // Watch for system preference changes if 'system' theme is active
     if (settings.theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -61,7 +81,7 @@ export const useSettings = () => {
       mediaQuery.addEventListener('change', listener);
       return () => mediaQuery.removeEventListener('change', listener);
     }
-  }, [settings.theme]);
+  }, [settings.theme, settings.accent, settings.density]);
 
   const updateSetting = useCallback((key, value) => {
     setSettings((prev) => {

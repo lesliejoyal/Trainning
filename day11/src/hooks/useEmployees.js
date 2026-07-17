@@ -1,51 +1,124 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const STORAGE_KEY = 'ems_employees';
+const API_URL = 'https://6a4b3c8af5eab0bb6b626c33.mockapi.io/employee';
 
-// Seed data shown when no localStorage data exists
-const SEED_EMPLOYEES = [
-  { id: '1', firstName: 'Jane',    lastName: 'Cooper',   email: 'jane.cooper@ems.com',   phone: '+1 555-0101', department: 'Engineering', role: 'Senior Engineer',      status: 'Active',     salary: 95000,  joinDate: '2022-03-15', gender: 'Female' },
-  { id: '2', firstName: 'Cody',    lastName: 'Fisher',   email: 'cody.fisher@ems.com',    phone: '+1 555-0102', department: 'Product',     role: 'Product Manager',      status: 'Active',     salary: 105000, joinDate: '2021-07-01', gender: 'Male'   },
-  { id: '3', firstName: 'Esther',  lastName: 'Howard',   email: 'esther.howard@ems.com',  phone: '+1 555-0103', department: 'Design',      role: 'UX Designer',          status: 'On Leave',   salary: 80000,  joinDate: '2023-01-10', gender: 'Female' },
-  { id: '4', firstName: 'Jenny',   lastName: 'Wilson',   email: 'jenny.wilson@ems.com',   phone: '+1 555-0104', department: 'HR',          role: 'HR Manager',           status: 'Active',     salary: 75000,  joinDate: '2020-11-20', gender: 'Female' },
-  { id: '5', firstName: 'Kristin', lastName: 'Watson',   email: 'kristin.watson@ems.com', phone: '+1 555-0105', department: 'Marketing',   role: 'Marketing Lead',       status: 'Terminated', salary: 70000,  joinDate: '2019-05-05', gender: 'Female' },
-  { id: '6', firstName: 'Wade',    lastName: 'Warren',   email: 'wade.warren@ems.com',    phone: '+1 555-0106', department: 'Engineering', role: 'Frontend Developer',   status: 'Active',     salary: 85000,  joinDate: '2022-08-22', gender: 'Male'   },
-  { id: '7', firstName: 'Floyd',   lastName: 'Miles',    email: 'floyd.miles@ems.com',    phone: '+1 555-0107', department: 'Finance',     role: 'Financial Analyst',    status: 'Active',     salary: 88000,  joinDate: '2021-02-14', gender: 'Male'   },
-  { id: '8', firstName: 'Ronald',  lastName: 'Richards', email: 'ronald.r@ems.com',       phone: '+1 555-0108', department: 'Engineering', role: 'DevOps Engineer',      status: 'Remote',     salary: 98000,  joinDate: '2022-06-01', gender: 'Male'   },
-];
+// Helper: split a full name into firstName / lastName
+const splitName = (name = '') => {
+  const parts = name.trim().split(/\s+/);
+  const firstName = parts[0] || '';
+  const lastName  = parts.slice(1).join(' ') || '';
+  return { firstName, lastName };
+};
 
-const generateId = () => `emp_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+// Helper: merge API record into the shape the app expects
+const normalizeEmployee = (apiRecord) => {
+  const { firstName, lastName } = splitName(apiRecord.name);
+  return {
+    id:         String(apiRecord.id),
+    firstName,
+    lastName,
+    email:      apiRecord.email      || '',
+    phone:      apiRecord.phone      || '',
+    department: apiRecord.department || '',
+    role:       apiRecord.role       || '',
+    status:     apiRecord.status     || 'Active',
+    salary:     apiRecord.salary     || 0,
+    joinDate:   apiRecord.joinDate   || new Date().toISOString().slice(0, 10),
+    gender:     apiRecord.gender     || '',
+    // keep the raw name so PUT requests are easy
+    name:       apiRecord.name       || `${firstName} ${lastName}`,
+  };
+};
+
+// Helper: convert local shape → API payload
+const toApiPayload = (data) => ({
+  name:       `${data.firstName} ${data.lastName}`.trim(),
+  email:      data.email,
+  department: data.department,
+  phone:      data.phone      || '',
+  role:       data.role       || '',
+  status:     data.status     || 'Active',
+  salary:     data.salary     || 0,
+  joinDate:   data.joinDate   || new Date().toISOString().slice(0, 10),
+  gender:     data.gender     || '',
+});
 
 export const useEmployees = () => {
-  const [employees, setEmployees] = useState(() => {
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState(null);
+
+  // ── Fetch all employees from API ──────────────────────────────────────────
+  const fetchEmployees = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : SEED_EMPLOYEES;
-    } catch {
-      return SEED_EMPLOYEES;
+      const res  = await fetch(API_URL);
+      if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
+      const data = await res.json();
+      setEmployees(data.map(normalizeEmployee));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-  });
+  }, []);
 
-  // Persist to localStorage whenever employees change
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(employees));
-  }, [employees]);
+    fetchEmployees();
+  }, [fetchEmployees]);
 
-  const addEmployee = useCallback((data) => {
-    const newEmployee = { ...data, id: generateId(), joinDate: data.joinDate || new Date().toISOString().slice(0, 10) };
-    setEmployees((prev) => [newEmployee, ...prev]);
-    return newEmployee;
+  // ── Add employee (POST) ───────────────────────────────────────────────────
+  const addEmployee = useCallback(async (data) => {
+    const payload = toApiPayload(data);
+    const res = await fetch(API_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`Failed to add employee: ${res.status}`);
+    const created = await res.json();
+    const normalized = normalizeEmployee(created);
+    setEmployees((prev) => [normalized, ...prev]);
+    return normalized;
   }, []);
 
-  const updateEmployee = useCallback((id, data) => {
-    setEmployees((prev) => prev.map((emp) => (emp.id === id ? { ...emp, ...data } : emp)));
+  // ── Update employee (PUT) ─────────────────────────────────────────────────
+  const updateEmployee = useCallback(async (id, data) => {
+    const payload = toApiPayload(data);
+    const res = await fetch(`${API_URL}/${id}`, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`Failed to update employee: ${res.status}`);
+    const updated = await res.json();
+    const normalized = normalizeEmployee(updated);
+    setEmployees((prev) => prev.map((emp) => (emp.id === String(id) ? normalized : emp)));
+    return normalized;
   }, []);
 
-  const deleteEmployee = useCallback((id) => {
-    setEmployees((prev) => prev.filter((emp) => emp.id !== id));
+  // ── Delete employee (DELETE) ──────────────────────────────────────────────
+  const deleteEmployee = useCallback(async (id) => {
+    const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(`Failed to delete employee: ${res.status}`);
+    setEmployees((prev) => prev.filter((emp) => emp.id !== String(id)));
   }, []);
 
-  const getEmployee = useCallback((id) => employees.find((emp) => emp.id === id), [employees]);
+  // ── Get single employee ───────────────────────────────────────────────────
+  const getEmployee = useCallback(
+    (id) => employees.find((emp) => emp.id === String(id)),
+    [employees],
+  );
 
-  return { employees, addEmployee, updateEmployee, deleteEmployee, getEmployee };
+  return {
+    employees,
+    loading,
+    error,
+    addEmployee,
+    updateEmployee,
+    deleteEmployee,
+    getEmployee,
+    refetch: fetchEmployees,
+  };
 };

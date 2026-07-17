@@ -7,7 +7,7 @@ import {
 import toast from 'react-hot-toast';
 import { useSettings } from '../hooks/useSettings';
 import { Button } from '../components/ui/Button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
+import { Card, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { Input, Select } from '../components/ui/Form';
 import { PageHeader } from '../components/ui/PageHeader';
 

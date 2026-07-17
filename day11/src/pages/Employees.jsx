@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Plus, Search, Filter, Eye, Pencil, Trash2, ChevronLeft, ChevronRight, X, Users, Loader2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Plus, Search, Filter, Eye, Pencil, Trash2, ChevronLeft, ChevronRight, X, Users, Loader2, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useEmployees } from '../hooks/useEmployees';
 import EmployeeModal from '../components/employees/EmployeeModal';
@@ -23,21 +23,15 @@ const avatarGradients = [
 const getGradient = (name = '') => avatarGradients[name.charCodeAt(0) % avatarGradients.length];
 
 const Employees = () => {
-  const { employees, addEmployee, updateEmployee, deleteEmployee } = useEmployees();
+  const { employees, loading: isLoading, error, addEmployee, updateEmployee, deleteEmployee } = useEmployees();
 
-  const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch]         = useState('');
   const [deptFilter, setDeptFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage]             = useState(1);
   const [modal, setModal]         = useState({ type: null, employee: null });
-
-  useEffect(() => {
-    // Simulate loading state for 500ms on mount
-    const timer = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, []);
+  const [saving, setSaving]         = useState(false);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -62,22 +56,36 @@ const Employees = () => {
   const openDelete = (emp) => setModal({ type: 'delete', employee: emp });
   const closeModal = () => setModal({ type: null, employee: null });
 
-  const handleSave = (data) => {
-    if (modal.type === 'add') {
-      addEmployee(data);
-      toast.success('Employee added successfully');
+  const handleSave = async (data) => {
+    setSaving(true);
+    try {
+      if (modal.type === 'add') {
+        await addEmployee(data);
+        toast.success('Employee added successfully');
+      }
+      if (modal.type === 'edit') {
+        await updateEmployee(modal.employee.id, data);
+        toast.success('Employee updated successfully');
+      }
+      closeModal();
+    } catch (err) {
+      toast.error(err.message || 'Something went wrong');
+    } finally {
+      setSaving(false);
     }
-    if (modal.type === 'edit') {
-      updateEmployee(modal.employee.id, data);
-      toast.success('Employee updated successfully');
-    }
-    closeModal();
   };
 
-  const handleDelete = () => {
-    deleteEmployee(modal.employee.id);
-    toast.success('Employee deleted successfully');
-    closeModal();
+  const handleDelete = async () => {
+    setSaving(true);
+    try {
+      await deleteEmployee(modal.employee.id);
+      toast.success('Employee deleted successfully');
+      closeModal();
+    } catch (err) {
+      toast.error(err.message || 'Failed to delete employee');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const activeFilters = [deptFilter !== 'All', statusFilter !== 'All'].filter(Boolean).length;
@@ -94,6 +102,12 @@ const Employees = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {error && (
+        <div className="flex items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 dark:border-rose-800 dark:bg-rose-950/30 px-4 py-3 text-rose-700 dark:text-rose-400">
+          <AlertCircle className="h-5 w-5 shrink-0" />
+          <p className="text-sm font-medium">Failed to load employees: {error}</p>
+        </div>
+      )}
       <PageHeader 
         title="Employees" 
         description={`${filtered.length} of ${employees.length} employees`}
@@ -213,7 +227,7 @@ const Employees = () => {
                       </td>
                       <td className="px-5 py-3.5 hidden lg:table-cell">
                         <span className="font-medium text-slate-900 dark:text-white">
-                          ${Number(emp.salary).toLocaleString()}
+                          ₹{Number(emp.salary).toLocaleString('en-IN')}
                         </span>
                       </td>
                       <td className="px-5 py-3.5">

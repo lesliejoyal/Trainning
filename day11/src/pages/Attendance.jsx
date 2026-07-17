@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Plus, Search, X, Pencil, Trash2, Clock, UserCheck, UserX, CalendarDays, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Clock, UserCheck, UserX, CalendarDays, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAttendance } from '../hooks/useAttendance';
 import ConfirmDialog from '../components/employees/ConfirmDialog';
@@ -14,13 +14,13 @@ import { Modal } from '../components/ui/Modal';
 const STATUSES    = ['All', 'Present', 'Absent', 'Late', 'Half Day'];
 const ATT_STATUSES = ['Present', 'Absent', 'Late', 'Half Day'];
 const EMPLOYEES   = [
-  { id: '1', name: 'Jane Cooper',     department: 'Engineering' },
-  { id: '2', name: 'Cody Fisher',     department: 'Product'     },
-  { id: '3', name: 'Esther Howard',   department: 'Design'      },
-  { id: '4', name: 'Jenny Wilson',    department: 'HR'          },
-  { id: '6', name: 'Wade Warren',     department: 'Engineering' },
-  { id: '7', name: 'Floyd Miles',     department: 'Finance'     },
-  { id: '8', name: 'Ronald Richards', department: 'Engineering' },
+  { id: '1', name: 'Kavitha Kanimozhi',   department: 'Engineering' },
+  { id: '2', name: 'Arivoli Subramanian', department: 'Product'     },
+  { id: '3', name: 'Oviya Thamarai',      department: 'Design'      },
+  { id: '4', name: 'Meenakshi Nandhini',  department: 'HR'          },
+  { id: '6', name: 'Elango Murugan',      department: 'Engineering' },
+  { id: '7', name: 'Vikram Ramasamy',     department: 'Finance'     },
+  { id: '8', name: 'Arulozhi Senthil',    department: 'Engineering' },
 ];
 const PAGE_SIZE = 8;
 
@@ -35,13 +35,13 @@ const getStatusVariant = (status) => {
 };
 
 const StatCard = ({ icon: Icon, label, value, color }) => (
-  <Card className={`flex items-center gap-4 p-5 ${color} shadow-sm border-none`}>
-    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/60 dark:bg-black/20">
-      <Icon className="h-5 w-5" />
+  <Card className={`flex items-center gap-4 p-5 ${color} shadow-sm border-none transition-all duration-200 hover:shadow-md hover:-translate-y-1 rounded-xl`}>
+    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/60 dark:bg-black/20">
+      <Icon className="h-6 w-6" />
     </div>
     <div>
-      <p className="text-xs font-medium opacity-70">{label}</p>
-      <p className="text-2xl font-extrabold">{value}</p>
+      <p className="text-sm font-medium opacity-80">{label}</p>
+      <p className="text-3xl font-extrabold">{value}</p>
     </div>
   </Card>
 );
@@ -53,9 +53,12 @@ const MarkModal = ({ isOpen, onClose, onSave, existing }) => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (isOpen && existing) setForm({ employeeId: existing.employeeId, date: existing.date, status: existing.status, checkIn: existing.checkIn || '', checkOut: existing.checkOut || '' });
-    if (isOpen && !existing) setForm({ employeeId: '', date: new Date().toISOString().slice(0,10), status: 'Present', checkIn: '09:00', checkOut: '18:00' });
-    setErrors({});
+    if (isOpen) {
+       
+      setForm(existing ? { employeeId: existing.employeeId, date: existing.date, status: existing.status, checkIn: existing.checkIn || '', checkOut: existing.checkOut || '' } : { employeeId: '', date: new Date().toISOString().slice(0,10), status: 'Present', checkIn: '09:00', checkOut: '18:00' });
+       
+      setErrors({});
+    }
   }, [isOpen, existing]);
 
   const set = (k) => (e) => { setForm((p) => ({ ...p, [k]: e.target.value })); setErrors((p) => ({ ...p, [k]: '' })); };

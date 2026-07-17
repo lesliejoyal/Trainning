@@ -71,7 +71,7 @@ const EmployeeViewModal = ({ isOpen, employee, onClose, onEdit }) => {
             <InfoRow icon={Briefcase} label="Role"       value={employee.role} />
             <InfoRow icon={Shield}    label="Status"     value={employee.status} />
             <InfoRow icon={User2}     label="Gender"     value={employee.gender} />
-            <InfoRow icon={DollarSign}label="Salary"     value={`$${Number(employee.salary).toLocaleString()} / yr`} />
+            <InfoRow icon={DollarSign}label="Salary"     value={`₹${Number(employee.salary).toLocaleString('en-IN')} / yr`} />
             <InfoRow icon={Calendar}  label="Join Date"  value={new Date(employee.joinDate).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })} />
           </div>
         </div>
